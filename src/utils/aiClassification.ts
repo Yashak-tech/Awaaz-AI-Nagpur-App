@@ -1,5 +1,5 @@
-// AI Classification Utilities for Swachh Nagar
-// Simulates advanced AI analysis for issue detection and priority assignment
+// AI Classification Utilities for Awaaz-AI (Nagpur Civic App)
+// Simulates advanced AI analysis for issue detection and priority assignment for NMC
 
 export interface AIAnalysisResult {
   primaryIssue: string;

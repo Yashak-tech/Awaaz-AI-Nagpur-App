@@ -68,8 +68,8 @@ export function AnalyticsScreen({ reports, user }: AnalyticsScreenProps) {
       {/* Header */}
       <div className="bg-white border-b sticky top-0 z-40">
         <div className="p-4">
-          <h1 className="text-xl mb-1 text-primary">Analytics Dashboard</h1>
-          <p className="text-sm text-muted-foreground">{user.district} District</p>
+          <h1 className="text-xl mb-1 text-primary">NMC Analytics Dashboard</h1>
+          <p className="text-sm text-muted-foreground">Nagpur Municipal Corporation (10 Administrative Zones)</p>
         </div>
       </div>
 
@@ -186,37 +186,79 @@ export function AnalyticsScreen({ reports, user }: AnalyticsScreenProps) {
           </div>
         </Card>
 
-        {/* Performance Metrics */}
+        {/* Proactive AI & Sensor Alerts */}
+        <Card className="p-4 bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold text-slate-900 text-sm flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+              Proactive AI Early Warning & Sensor Alerts
+            </h3>
+            <Badge className="bg-emerald-600 text-white text-[10px]">3 Active Signals</Badge>
+          </div>
+          <div className="space-y-2.5 text-xs">
+            <div className="bg-white p-2.5 rounded-lg border border-emerald-100 shadow-sm flex items-center justify-between">
+              <div>
+                <p className="font-medium text-slate-800">🗑 Bin Fill Level Sensor &gt;85%</p>
+                <p className="text-muted-foreground">Zone 1 - Laxmi Nagar (Ward 36)</p>
+              </div>
+              <Badge variant="outline" className="text-[10px] border-emerald-500 text-emerald-700">Pre-empted Crew Dispatched</Badge>
+            </div>
+
+            <div className="bg-white p-2.5 rounded-lg border border-emerald-100 shadow-sm flex items-center justify-between">
+              <div>
+                <p className="font-medium text-slate-800">⚡ Streetlight Voltage Anomaly Detected</p>
+                <p className="text-muted-foreground">Zone 2 - Dharampeth (Law College Sq)</p>
+              </div>
+              <Badge variant="outline" className="text-[10px] border-blue-500 text-blue-700">Auto Ticket Created</Badge>
+            </div>
+
+            <div className="bg-white p-2.5 rounded-lg border border-emerald-100 shadow-sm flex items-center justify-between">
+              <div>
+                <p className="font-medium text-slate-800">🌧 Storm Drain Silt Accumulation Alert</p>
+                <p className="text-muted-foreground">Zone 6 - Gandhibagh (Itwari Market)</p>
+              </div>
+              <Badge variant="outline" className="text-[10px] border-amber-500 text-amber-700">Scheduled Desilting</Badge>
+            </div>
+          </div>
+        </Card>
+
+        {/* AI Deduplication & Ward Parity Metrics */}
         <Card className="p-4">
-          <h3 className="font-medium mb-4">Performance Insights</h3>
+          <h3 className="font-medium mb-4">Performance & Inclusion Insights</h3>
           <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <span className="text-sm font-medium">AI Duplicate Deduplication</span>
+                <p className="text-xs text-muted-foreground">Merged redundant civic reports</p>
+              </div>
+              <Badge className="bg-blue-100 text-blue-800">42 Merged (~38 hrs saved)</Badge>
+            </div>
+
+            <div className="flex justify-between items-center">
+              <div>
+                <span className="text-sm font-medium">Equitable Ward Response Parity</span>
+                <p className="text-xs text-muted-foreground">Underserved wards vs high-tech wards</p>
+              </div>
+              <span className="text-sm font-semibold text-emerald-600">98.4% Parity</span>
+            </div>
+
             <div className="flex justify-between items-center">
               <span className="text-sm">AI Classification Accuracy</span>
               <div className="flex items-center gap-2">
                 <div className="w-20 h-2 bg-gray-200 rounded-full">
-                  <div className="w-[91%] h-2 bg-green-500 rounded-full"></div>
+                  <div className="w-[94%] h-2 bg-green-500 rounded-full"></div>
                 </div>
-                <span className="text-sm font-medium">91%</span>
+                <span className="text-sm font-medium">94%</span>
               </div>
             </div>
             
             <div className="flex justify-between items-center">
-              <span className="text-sm">Response Time (Target: 2 days)</span>
+              <span className="text-sm">Average Resolution Time</span>
               <div className="flex items-center gap-2">
                 <div className="w-20 h-2 bg-gray-200 rounded-full">
-                  <div className="w-[85%] h-2 bg-blue-500 rounded-full"></div>
+                  <div className="w-[88%] h-2 bg-blue-500 rounded-full"></div>
                 </div>
-                <span className="text-sm font-medium">1.7d avg</span>
-              </div>
-            </div>
-            
-            <div className="flex justify-between items-center">
-              <span className="text-sm">Citizen Satisfaction</span>
-              <div className="flex items-center gap-2">
-                <div className="w-20 h-2 bg-gray-200 rounded-full">
-                  <div className="w-[88%] h-2 bg-purple-500 rounded-full"></div>
-                </div>
-                <span className="text-sm font-medium">4.4/5</span>
+                <span className="text-sm font-medium">1.6d avg</span>
               </div>
             </div>
           </div>

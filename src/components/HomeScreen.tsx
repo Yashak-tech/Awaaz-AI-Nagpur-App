@@ -147,9 +147,12 @@ export function HomeScreen({
       <div className="bg-white border-b sticky top-0 z-40 shadow-sm">
         <div className="p-4">
           <div className="flex items-center justify-between mb-3">
-            <div>
-              <h1 className="text-xl font-bold text-primary">Swachh Nagar</h1>
-              <p className="text-sm text-muted-foreground">Siliguri Municipal Corporation</p>
+            <div className="flex items-center gap-3">
+              <img src="/logo.png" alt="Awaaz-AI Logo" className="w-10 h-10 object-contain rounded-full border border-gray-100 shadow-sm" />
+              <div>
+                <h1 className="text-xl font-bold text-slate-900 leading-tight">Awaaz-AI</h1>
+                <p className="text-xs font-semibold text-emerald-600">The Nagpur App • NMC</p>
+              </div>
             </div>
             <div className="text-right">
               <div className="text-sm font-medium text-green-600">{filteredReports.length} Active Reports</div>
@@ -214,6 +217,16 @@ export function HomeScreen({
                 }]}
                 className="w-full h-full"
               />
+              {report.isDuplicateMerged && (
+                <div className="absolute top-3 left-3 bg-blue-600/90 text-white text-[11px] px-2.5 py-1 rounded-full font-semibold shadow-md backdrop-blur-sm">
+                  🔄 {report.duplicateCount || 3} Duplicate Complaints Merged
+                </div>
+              )}
+              {report.isProactiveSensorAlert && (
+                <div className="absolute top-3 left-3 bg-emerald-600/90 text-white text-[11px] px-2.5 py-1 rounded-full font-semibold shadow-md backdrop-blur-sm flex items-center gap-1">
+                  ⚡ Proactive AI Pre-Complaint Alert
+                </div>
+              )}
               {report.isTamperDetected && (
                 <div className="absolute top-3 right-3 bg-orange-500 text-white text-xs px-2 py-1 rounded-full font-medium">
                   ⚠️ Verified

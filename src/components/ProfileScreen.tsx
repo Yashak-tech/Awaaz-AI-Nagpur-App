@@ -24,6 +24,7 @@ interface ProfileScreenProps {
 const languageOptions = [
   { value: 'english', label: 'English' },
   { value: 'hindi', label: 'हिन्दी (Hindi)' },
+  { value: 'marathi', label: 'मराठी (Marathi)' },
   { value: 'bengali', label: 'বাংলা (Bengali)' },
   { value: 'santhali', label: 'ᱥᱟᱱᱛᱟᱲᱤ (Santhali)' },
   { value: 'nagpuri', label: 'नागपुरी (Nagpuri)' }
@@ -77,7 +78,7 @@ export function ProfileScreen({
   const handleDownloadCertificate = (reportId: string) => {
     // Generate a simple certificate download
     const certificateData = `
-      SILIGURI MUNICIPAL CORPORATION
+      NAGPUR MUNICIPAL CORPORATION (NMC)
       ISSUE RESOLUTION CERTIFICATE
       
       Report ID: ${reportId}
@@ -85,9 +86,9 @@ export function ProfileScreen({
       Date: ${new Date().toLocaleDateString()}
       
       This certifies that the reported civic issue has been 
-      successfully resolved by the municipal authorities.
+      successfully resolved by Nagpur Municipal Corporation authorities.
       
-      Thank you for your civic participation.
+      Thank you for active citizen participation via Awaaz-AI.
     `;
     
     const blob = new Blob([certificateData], { type: 'text/plain' });
@@ -114,8 +115,8 @@ export function ProfileScreen({
       description: 'Streetlight has been non-functional for 3 days',
       imageUrl: 'https://i.pinimg.com/736x/c5/30/95/c530952c19fc1c1258fe15a9714562db.jpg?w=400',
       district: user.district,
-      ward: 'Ward 5',
-      street: 'Main Road',
+      ward: 'Zone 2 - Dharampeth (Ward 15)',
+      street: 'Ram Nagar Road',
       coordinates: user.coordinates,
       distance: 0.1,
       timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000),
@@ -135,8 +136,8 @@ export function ProfileScreen({
       description: 'Multiple garbage bins overflowing for past week',
       imageUrl: 'https://i.pinimg.com/736x/5c/7c/6b/5c7c6b139ab69341800be13b9ba038cb.jpg?w=400',
       district: user.district,
-      ward: 'Ward 8',
-      street: 'Colony Road',
+      ward: 'Zone 1 - Laxmi Nagar (Ward 36)',
+      street: 'Pratap Nagar Main Road',
       coordinates: user.coordinates,
       distance: 0.5,
       timestamp: new Date(Date.now() - 72 * 60 * 60 * 1000),
@@ -156,8 +157,8 @@ export function ProfileScreen({
       description: 'Large pothole causing traffic issues',
       imageUrl: 'https://i.pinimg.com/736x/d0/3f/c2/d03fc2fe363172d449e218a84b557508.jpg?w=400',
       district: user.district,
-      ward: 'Ward 12',
-      street: 'Highway Road',
+      ward: 'Zone 4 - Dhantoli (Ward 17)',
+      street: 'Congress Nagar Road',
       coordinates: user.coordinates,
       distance: 0.8,
       timestamp: new Date(Date.now() - 48 * 60 * 60 * 1000),
@@ -177,8 +178,8 @@ export function ProfileScreen({
       description: 'No water supply for 2 days in the area',
       imageUrl: 'https://i.pinimg.com/736x/5d/d9/86/5dd9865dc83354c74323a381faf3d3e3.jpg?w=400',
       district: user.district,
-      ward: 'Ward 15',
-      street: 'Residential Complex',
+      ward: 'Zone 3 - Hanuman Nagar (Ward 31)',
+      street: 'Sakkardara Main Road',
       coordinates: user.coordinates,
       distance: 1.2,
       timestamp: new Date(Date.now() - 96 * 60 * 60 * 1000),

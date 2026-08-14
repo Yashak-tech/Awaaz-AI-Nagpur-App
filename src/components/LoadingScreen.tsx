@@ -26,7 +26,7 @@ export function LoadingScreen() {
         >
           <img 
             src="/logo.png" 
-            alt="Swachh Nagar Logo" 
+            alt="Awaaz-AI Logo" 
             className="w-full h-full object-contain rounded-full shadow-lg"
           />
         </motion.div>

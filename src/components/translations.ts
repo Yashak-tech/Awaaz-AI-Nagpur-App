@@ -1,4 +1,4 @@
-export type Language = 'english' | 'hindi' | 'bengali' | 'santhali' | 'nagpuri';
+export type Language = 'english' | 'hindi' | 'marathi' | 'bengali' | 'santhali' | 'nagpuri';
 
 export const translations = {
   english: {
@@ -6,7 +6,7 @@ export const translations = {
     report: "Report",
     submit: "Submit",
     savedOffline: "Saved locally — will sync when online",
-    demoLabel: "Hardcoded demo — Jharkhand only",
+    demoLabel: "Awaaz-AI Demo — Nagpur Municipal Corporation",
     upvote: "Upvote",
     comment: "Comment",
     map: "Map", 
@@ -88,7 +88,7 @@ export const translations = {
     report: "रिपोर्ट करें",
     submit: "सबमिट करें", 
     savedOffline: "स्थानीय रूप से सहेजा गया — ऑनलाइन होने पर सिंक करेगा",
-    demoLabel: "हार्डकोड्ड डेमो — केवल झारखंड",
+    demoLabel: "आवाज़-AI डेमो — नागपूर महानगरपालिका",
     upvote: "अपवोट",
     comment: "टिप्पणी", 
     map: "मानचित्र",
@@ -170,7 +170,7 @@ export const translations = {
     report: "রিপোর্ট করুন",
     submit: "জমা দিন",
     savedOffline: "স্থানীয়ভাবে সংরক্ষণ করা হয়েছে — অনলাইনে ফিরে এলে সিঙ্ক হবে",
-    demoLabel: "হার্ডকোডেড ডেমো — শুধুমাত্র ঝারখণ্ড",
+    demoLabel: "আওয়াজ-AI ডেমো — নাগপুর পৌরসংস্থা",
     upvote: "আপভোট",
     comment: "মন্তব্য",
     map: "মানচিত্র", 
@@ -409,5 +409,87 @@ export const translations = {
     waterLogging: "Nagpuri: [Water Logging placeholder]",
     brokenStreetlight: "Nagpuri: [Broken Streetlight placeholder]",
     other: "Nagpuri: [Other placeholder]"
+  },
+
+  marathi: {
+    // Core UI strings
+    report: "तक्रार नोंदवा",
+    submit: "सबमिट करा",
+    savedOffline: "स्थानिकरित्या जतन केले — ऑनलाइन झाल्यावर सिंक होईल",
+    demoLabel: "आवाज़-AI डेमो — नागपूर महानगरपालिका",
+    upvote: "अपव्होट",
+    comment: "प्रतिक्रिया",
+    map: "नकाशा", 
+    profile: "प्रोफाईल",
+    reportAgain: "पुन्हा तक्रार नोंदवा",
+    statusPending: "स्थिती: प्रलंबित",
+    statusInProgress: "स्थिती: सबमिट केले", 
+    statusResolved: "स्थिती: निवारण झाले",
+    
+    // Additional strings
+    home: "मुख्यपृष्ठ",
+    requestLocation: "स्थान परवानगी द्या",
+    useThisLocation: "हे स्थान वापरा",
+    selectDistrict: "जिल्हा निवडा",
+    allowLocation: "तुमचा मनपा विभाग आपोआप ओळखण्यासाठी स्थान प्रवेशाची अनुमती द्या",
+    detectingLocation: "तुमचे स्थान शोधत आहे...",
+    locationDetected: "स्थान सापडले:",
+    manualSelection: "किंवा मॅन्युअली निवडा:",
+    selectLanguage: "भाषा निवडा",
+    continue: "पुढे जा",
+    
+    // Report screen
+    capturePhoto: "फोटो काढा",
+    issueType: "समस्येचा प्रकार",
+    severity: "गंभीरता",
+    description: "वर्णन",
+    optional: "ऐच्छिक",
+    recordVoiceNote: "व्हॉईस टीप रेकॉर्ड करा",
+    location: "स्थान",
+    cancel: "रद्द करा",
+    
+    // Feed
+    localFeed: "स्थानिक नागपूर फीड",
+    search: "कीवर्ड किंवा प्रभाग/झोननुसार शोधा...",
+    minutesAgo: "मिनिटांपूर्वी",
+    hoursAgo: "तासांपूर्वी",
+    daysAgo: "दिवसांपूर्वी",
+    confidence: "विश्वासार्हता",
+    comments: "प्रतिक्रिया",
+    viewDetails: "तपशील पहा",
+    addComment: "प्रतिक्रिया जोडा...",
+    postComment: "पोस्ट करा",
+    
+    // Map
+    allReports: "सर्व",
+    road: "रस्ता",
+    garbage: "कचरा", 
+    water: "पाणी",
+    streetlight: "पथदिवे",
+    unresolved: "अथक",
+    
+    // Profile
+    myReports: "माझ्या तक्रारी",
+    settings: "सेटिंग्ज",
+    language: "भाषा",
+    onlineMode: "ऑनलाइन मोड",
+    offlineMode: "ऑफलाइन मोड",
+    slaCountdown: "SLA: ५ दिवस बाकी",
+    rateResolution: "या निवारणाचे मूल्यमापन करा",
+    
+    // Status and notifications
+    reportSubmitted: "तक्रार यशस्वीरित्या सबमिट केली! आयडी:",
+    syncComplete: "सिंक पूर्ण — तक्रार अपलोड केली",
+    tamperDetected: "⚠️ त्रुटी/बदल आढळला",
+    highPriority: "🔴 उच्च प्राधान्य",
+    
+    // Issue types
+    pothole: "खड्डा",
+    brokenRoad: "खराब रस्ता",
+    garbagePile: "कचऱ्याचा ढीग",
+    drainageIssue: "गटाराची समस्या",
+    waterLogging: "पाणी साचणे",
+    brokenStreetlight: "बंद पथदिवा",
+    other: "इतर"
   }
 };

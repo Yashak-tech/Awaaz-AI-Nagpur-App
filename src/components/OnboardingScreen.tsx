@@ -9,18 +9,19 @@ interface District {
   coordinates: { lat: number; lng: number };
 }
 
-const westBengalDistricts: District[] = [
-  { name: 'Siliguri', coordinates: { lat: 26.7271, lng: 88.3953 } },
-  { name: 'Darjeeling', coordinates: { lat: 27.0360, lng: 88.2627 } },
-  { name: 'Jalpaiguri', coordinates: { lat: 26.5499, lng: 88.7177 } },
-  { name: 'Cooch Behar', coordinates: { lat: 26.3157, lng: 89.4591 } },
-  { name: 'Alipurduar', coordinates: { lat: 26.4915, lng: 89.5229 } },
-  { name: 'Kalimpong', coordinates: { lat: 27.0587, lng: 88.4669 } }
+const maharashtraDistricts: District[] = [
+  { name: 'Nagpur', coordinates: { lat: 21.1458, lng: 79.0882 } },
+  { name: 'Pune', coordinates: { lat: 18.5204, lng: 73.8567 } },
+  { name: 'Mumbai', coordinates: { lat: 19.0760, lng: 72.8777 } },
+  { name: 'Thane', coordinates: { lat: 19.2183, lng: 72.9781 } },
+  { name: 'Chhatrapati Sambhajinagar', coordinates: { lat: 19.8762, lng: 75.3433 } },
+  { name: 'Nashik', coordinates: { lat: 19.9975, lng: 73.7898 } }
 ];
 
 const languageOptions = [
   { value: 'english', label: 'English' },
   { value: 'hindi', label: 'हिन्दी (Hindi)' },
+  { value: 'marathi', label: 'मराठी (Marathi)' },
   { value: 'bengali', label: 'বাংলা (Bengali)' },
   { value: 'santhali', label: 'ᱥᱟᱱᱛᱟᱲᱤ (Santhali)' },
   { value: 'nagpuri', label: 'नागपुरी (Nagpuri)' }
@@ -40,14 +41,14 @@ export function OnboardingScreen({ onComplete, currentLanguage, onLanguageChange
 
   const t = translations[currentLanguage];
 
-  // Simulate GPS detection for Siliguri
+  // Simulate GPS detection for Nagpur
   const simulateGPSDetection = () => {
     setLocationStep('detecting');
     
-    // Simulate GPS detection delay and detect Siliguri
+    // Simulate GPS detection delay and detect Nagpur
     setTimeout(() => {
-      const siliguri = westBengalDistricts.find(d => d.name === 'Siliguri')!;
-      setDetectedDistrict(siliguri);
+      const nagpur = maharashtraDistricts.find(d => d.name === 'Nagpur')!;
+      setDetectedDistrict(nagpur);
       setLocationStep('detected');
     }, 1500);
   };
@@ -64,7 +65,7 @@ export function OnboardingScreen({ onComplete, currentLanguage, onLanguageChange
   };
 
   const handleManualDistrictSelect = () => {
-    const district = westBengalDistricts.find(d => d.name === selectedDistrict);
+    const district = maharashtraDistricts.find(d => d.name === selectedDistrict);
     if (district) {
       onComplete(district.name, district.coordinates, currentLanguage);
     }
@@ -80,13 +81,13 @@ export function OnboardingScreen({ onComplete, currentLanguage, onLanguageChange
               <div className="w-full h-full bg-white rounded-full flex items-center justify-center">
                 <img 
                   src="/logo.png" 
-                  alt="Swachh Nagar Logo" 
+                  alt="Awaaz-AI Logo" 
                   className="w-14 h-14 object-contain rounded-full"
                 />
               </div>
             </div>
           </div>
-          <h1 className="text-2xl mb-2 text-primary">Swachh Nagar</h1>
+          <h1 className="text-2xl mb-2 text-primary">Awaaz-AI</h1>
           <p className="text-muted-foreground">
             {translations.english.selectLanguage}
           </p>
@@ -122,15 +123,15 @@ export function OnboardingScreen({ onComplete, currentLanguage, onLanguageChange
           {/* Tricolor border */}
           <div className="absolute inset-0 rounded-full bg-gradient-to-r from-orange-500 via-white to-green-600 p-1">
             <div className="w-full h-full bg-white rounded-full flex items-center justify-center">
-              <img 
+                <img 
                 src="/logo.png" 
-                alt="Swachh Nagar Logo" 
+                alt="Awaaz-AI Logo" 
                 className="w-14 h-14 object-contain rounded-full"
               />
             </div>
           </div>
         </div>
-        <h1 className="text-2xl mb-2 text-primary">Swachh Nagar</h1>
+        <h1 className="text-2xl mb-2 text-primary">Awaaz-AI</h1>
         <p className="text-sm text-muted-foreground">
           Digital Civic Reporting Platform
         </p>

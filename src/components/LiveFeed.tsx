@@ -22,28 +22,28 @@ export function LiveFeed({ isVisible }: LiveFeedProps) {
     {
       id: '1',
       type: 'status_update',
-      message: 'Pothole on Hill Cart Road marked for immediate repair',
+      message: 'Pothole on Wardha Road near Chhatrapati Square marked for immediate repair',
       timestamp: new Date(),
       priority: 'high'
     },
     {
       id: '2',
       type: 'department_assigned',
-      message: 'PWD team assigned to drainage issue in Siliguri Junction',
+      message: 'NMC Sanitation team assigned to waste overflow at Sitabuldi Main Market',
       timestamp: new Date(Date.now() - 30000),
       priority: 'medium'
     },
     {
       id: '3',
       type: 'resolved',
-      message: 'Street light at Pradhan Nagar Main Road has been fixed',
+      message: 'LED Streetlight at Amravati Road near Law College Square has been fixed',
       timestamp: new Date(Date.now() - 120000),
       priority: 'low'
     },
     {
       id: '4',
       type: 'new_report',
-      message: 'New water supply issue reported in Dagapur area',
+      message: 'New water pipeline leak reported near GMCH Medical Square (Zone 3)',
       timestamp: new Date(Date.now() - 300000),
       priority: 'high'
     }
