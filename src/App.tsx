@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { findDuplicate } from './utils/duplicateDetection';
+import { useStreetlightAlerts } from './hooks/useStreetlightAlerts';
 import { Toaster } from './components/ui/sonner';
 import { toast } from 'sonner';
 import { LoadingScreen } from './components/LoadingScreen';
@@ -9,6 +11,7 @@ import { ReportScreen } from './components/ReportScreen';
 import { LeafletMapScreen } from './components/LeafletMapScreen';
 import { ProfileScreen } from './components/ProfileScreen';
 import { AnalyticsScreen } from './components/AnalyticsScreen';
+import { DigitalTwinScreen } from './components/DigitalTwinScreen';
 import { BottomNavigation } from './components/BottomNavigation';
 import DesktopMobileNotice from './components/DesktopMobileNotice';
 import NMCBackground from './components/NMCBackground';
@@ -28,7 +31,7 @@ export interface Report {
   timestamp: Date;
   aiTag: string;
   aiConfidence: number;
-  status: 'pending' | 'acknowledged' | 'submitted' | 'resolved';
+  status: 'pending' | 'acknowledged' | 'submitted' | 'repair_scheduled' | 'under_process' | 'resolved';
   upvotes: number;
   comments: Comment[];
   severity: number;
@@ -40,6 +43,11 @@ export interface Report {
   isDuplicateMerged?: boolean;
   duplicateCount?: number;
   isProactiveSensorAlert?: boolean;
+  suggestedDepartment?: string;
+  resolvedAt?: Date;
+  satisfactionRating?: number;
+  audioUrl?: string;
+  voiceDurationSeconds?: number;
 }
 
 export interface MediaItem {
@@ -63,7 +71,7 @@ export interface User {
   isOnline: boolean;
 }
 
-export type Screen = 'onboarding' | 'home' | 'report' | 'map' | 'profile' | 'analytics';
+export type Screen = 'onboarding' | 'home' | 'report' | 'map' | 'profile' | 'analytics' | 'digital-twin';
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -78,6 +86,7 @@ export default function App() {
   const [reports, setReports] = useState<Report[]>([]);
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
+  const [isAdminView, setIsAdminView] = useState(false);
 
   // App initialization loading
   useEffect(() => {
@@ -89,6 +98,17 @@ export default function App() {
 
     initializeApp();
   }, []);
+
+  // IoT Streetlight Alerts — merge sensor data into reports
+  const iotAlerts = useStreetlightAlerts();
+  useEffect(() => {
+    if (iotAlerts.length === 0) return;
+    setReports(prev => {
+      // Remove previous IoT-sourced reports, then add fresh ones
+      const nonIotReports = prev.filter(r => !r.id.startsWith('iot-'));
+      return [...iotAlerts, ...nonIotReports];
+    });
+  }, [iotAlerts]);
 
   // Initialize with realistic Nagpur Municipal Corporation reports across 10 administrative zones
   useEffect(() => {
@@ -136,7 +156,10 @@ export default function App() {
         hasUserUpvoted: false,
         priority: 'high',
         isDuplicateMerged: true,
-        duplicateCount: 4
+        duplicateCount: 4,
+        suggestedDepartment: 'Public Works Department',
+        audioUrl: 'https://cdn.freesound.org/previews/320/320655_5260872-lq.mp3',
+        voiceDurationSeconds: 8
       },
       {
         id: '2',
@@ -173,7 +196,10 @@ export default function App() {
         type: 'garbage',
         hasUserUpvoted: false,
         priority: 'medium',
-        isProactiveSensorAlert: true
+        isProactiveSensorAlert: true,
+        suggestedDepartment: 'Waste Management Department',
+        audioUrl: 'https://cdn.freesound.org/previews/320/320655_5260872-lq.mp3',
+        voiceDurationSeconds: 12
       },
       {
         id: '3',
@@ -208,7 +234,10 @@ export default function App() {
         severity: 6,
         type: 'streetlight',
         hasUserUpvoted: false,
-        priority: 'low'
+        priority: 'low',
+        suggestedDepartment: 'Electrical Department',
+        resolvedAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
+        satisfactionRating: 4
       },
       {
         id: '4',
@@ -245,7 +274,8 @@ export default function App() {
         severity: 10,
         type: 'water',
         hasUserUpvoted: true,
-        priority: 'high'
+        priority: 'high',
+        suggestedDepartment: 'Water Supply Department'
       },
       {
         id: '5',
@@ -281,7 +311,8 @@ export default function App() {
         severity: 8,
         type: 'drainage',
         hasUserUpvoted: false,
-        priority: 'high'
+        priority: 'high',
+        suggestedDepartment: 'Drainage Department'
       }
     ];
     setReports(initialReports);
@@ -307,6 +338,35 @@ export default function App() {
   };
 
   const handleAddReport = (newReport: Omit<Report, 'id' | 'timestamp' | 'upvotes' | 'comments' | 'distance' | 'hasUserUpvoted'>) => {
+    // Check for duplicate reports before creating a new entry
+    const duplicate = findDuplicate(
+      { coordinates: newReport.coordinates, aiTag: newReport.aiTag },
+      reports
+    );
+
+    if (duplicate) {
+      // Merge into existing report: increment count, mark as merged
+      setReports(prev => prev.map(r => {
+        if (r.id === duplicate.id) {
+          return {
+            ...r,
+            isDuplicateMerged: true,
+            duplicateCount: (r.duplicateCount || 1) + 1
+          };
+        }
+        return r;
+      }));
+      toast.info(
+        `🔄 Duplicate detected — merged with existing report #${duplicate.id.slice(-4)}`,
+        {
+          description: `Now ${(duplicate.duplicateCount || 1) + 1} reports merged. Higher priority assigned.`,
+          duration: 4000,
+        }
+      );
+      setCurrentScreen('home');
+      return;
+    }
+
     const report: Report = {
       ...newReport,
       id: Date.now().toString(),
@@ -396,6 +456,43 @@ export default function App() {
     setUser(prev => ({ ...prev, language }));
   };
 
+  const handleStatusUpdate = (reportId: string, newStatus: Report['status']) => {
+    setReports(prev => prev.map(report => {
+      if (report.id === reportId) {
+        const updatedReport = {
+          ...report,
+          status: newStatus,
+          ...(newStatus === 'resolved' ? { resolvedAt: new Date() } : {})
+        };
+        if (selectedReport && selectedReport.id === reportId) {
+          setSelectedReport(updatedReport);
+        }
+        return updatedReport;
+      }
+      return report;
+    }));
+    toast.success(`Status updated to "${newStatus.replace('_', ' ')}"`, { duration: 3000 });
+  };
+
+  const handleRateReport = (reportId: string, rating: number) => {
+    setReports(prev => prev.map(report => {
+      if (report.id === reportId) {
+        const updatedReport = { ...report, satisfactionRating: rating };
+        if (selectedReport && selectedReport.id === reportId) {
+          setSelectedReport(updatedReport);
+        }
+        return updatedReport;
+      }
+      return report;
+    }));
+    toast.success(`Thank you for rating! ${rating}/5 ⭐`, { duration: 3000 });
+  };
+
+  const handleToggleAdmin = () => {
+    setIsAdminView(prev => !prev);
+    toast.info(isAdminView ? 'Switched to Citizen View' : 'Switched to Admin View', { duration: 2000 });
+  };
+
   const t = translations[user.language];
 
   // Show loading screen first
@@ -452,6 +549,9 @@ export default function App() {
                 selectedReport={selectedReport}
                 onCloseModal={() => setSelectedReport(null)}
                 onReportAgain={() => setCurrentScreen('report')}
+                isAdminView={isAdminView}
+                onStatusUpdate={handleStatusUpdate}
+                onRateReport={handleRateReport}
               />
             )}
             
@@ -477,6 +577,16 @@ export default function App() {
                 onLanguageChange={handleLanguageChange}
                 onToggleOnline={() => setUser(prev => ({ ...prev, isOnline: !prev.isOnline }))}
                 onReportAgain={() => setCurrentScreen('report')}
+                isAdminView={isAdminView}
+                onToggleAdmin={handleToggleAdmin}
+                onRateReport={handleRateReport}
+              />
+            )}
+            
+            {currentScreen === 'digital-twin' && (
+              <DigitalTwinScreen 
+                reports={reports}
+                user={user}
               />
             )}
           </div>

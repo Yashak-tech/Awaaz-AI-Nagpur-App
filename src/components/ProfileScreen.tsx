@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Settings, Globe, Wifi, WifiOff, Plus, User, MapPin, Calendar, Award, TrendingUp, Languages, Clock, Star, Download, RotateCcw } from 'lucide-react';
+import { Settings, Globe, Wifi, WifiOff, Plus, User, MapPin, Calendar, Award, TrendingUp, Languages, Clock, Star, Download, RotateCcw, Shield } from 'lucide-react';
 import { Button } from './ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Switch } from './ui/switch';
@@ -12,6 +12,7 @@ import { Report, User as UserType } from '../App';
 import { translations, Language } from './translations';
 import { TechShowcase } from './TechShowcase';
 import { ImageWithFallback } from './figma/ImageWithFallback';
+import { AudioPlayer } from './AudioPlayer';
 
 interface ProfileScreenProps {
   reports: Report[];
@@ -19,14 +20,15 @@ interface ProfileScreenProps {
   onLanguageChange: (language: Language) => void;
   onToggleOnline: () => void;
   onReportAgain: () => void;
+  isAdminView?: boolean;
+  onToggleAdmin?: () => void;
+  onRateReport?: (reportId: string, rating: number) => void;
 }
 
 const languageOptions = [
   { value: 'english', label: 'English' },
   { value: 'hindi', label: 'हिन्दी (Hindi)' },
   { value: 'marathi', label: 'मराठी (Marathi)' },
-  { value: 'bengali', label: 'বাংলা (Bengali)' },
-  { value: 'santhali', label: 'ᱥᱟᱱᱛᱟᱲᱤ (Santhali)' },
   { value: 'nagpuri', label: 'नागपुरी (Nagpuri)' }
 ];
 
@@ -35,7 +37,10 @@ export function ProfileScreen({
   user, 
   onLanguageChange, 
   onToggleOnline,
-  onReportAgain 
+  onReportAgain,
+  isAdminView,
+  onToggleAdmin,
+  onRateReport
 }: ProfileScreenProps) {
   const t = translations[user.language];
 
@@ -107,8 +112,9 @@ export function ProfileScreen({
     onReportAgain();
   };
 
-  // Mock user reports (since we're using hardcoded data)
+  // Combine newly submitted user reports from App state with default demo reports
   const userReports: Report[] = [
+    ...reports.filter(r => r.userId === 'current-user' || r.id.startsWith('new-') || r.id.length > 5),
     {
       id: '101',
       title: 'Broken streetlight near bus stop',
@@ -289,6 +295,25 @@ export function ProfileScreen({
                     onCheckedChange={onToggleOnline}
                   />
                 </div>
+
+                <Separator />
+
+                {/* Admin Mode Toggle */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Shield className="w-4 h-4 text-amber-500" />
+                    <span className="text-sm">Admin Mode</span>
+                  </div>
+                  <Switch 
+                    checked={isAdminView || false} 
+                    onCheckedChange={onToggleAdmin}
+                  />
+                </div>
+                {isAdminView && (
+                  <p className="text-xs text-amber-600 ml-6">
+                    Admin controls are enabled in report detail views
+                  </p>
+                )}
               </div>
             </div>
           </TabsContent>
@@ -326,6 +351,16 @@ export function ProfileScreen({
                         <p className="text-xs text-muted-foreground mb-2">
                           {report.ward} • {formatTimeAgo(report.timestamp)}
                         </p>
+                        
+                        {report.audioUrl && (
+                          <div className="mb-2">
+                            <AudioPlayer
+                              audioUrl={report.audioUrl}
+                              durationSeconds={report.voiceDurationSeconds}
+                              compact={true}
+                            />
+                          </div>
+                        )}
                         
                         {report.status === 'submitted' && (
                           <div className="flex items-center gap-1 text-xs text-orange-600 mb-2">

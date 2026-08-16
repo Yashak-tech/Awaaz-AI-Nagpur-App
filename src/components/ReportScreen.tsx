@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Camera, MapPin, Clock, Mic, X, Brain, AlertTriangle } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Camera, MapPin, Clock, Mic, X, Brain, AlertTriangle, Upload, Image as ImageIcon, Sparkles, RefreshCw } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
@@ -12,6 +12,7 @@ import { translations } from './translations';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { analyzeImage, AIAnalysisResult } from '../utils/aiClassification';
 import { VoiceRecorder } from './VoiceRecorder';
+import { toast } from 'sonner';
 
 interface ReportScreenProps {
   user: User;
@@ -28,54 +29,76 @@ const issueTypes = [
   { value: 'other', aiTag: 'Other' }
 ];
 
+const sampleCivicPhotos = [
+  { label: 'Pothole', url: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=500', type: 'road' },
+  { label: 'Garbage Dump', url: 'https://images.unsplash.com/photo-1609771405106-23d93a049d8b?w=500', type: 'garbage' },
+  { label: 'Streetlight', url: 'https://i.pinimg.com/1200x/f4/c0/5c/f4c05c75472d231f783af9b203cc2ec0.jpg?w=500', type: 'streetlight' },
+  { label: 'Water Leak', url: 'https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=500', type: 'water' },
+];
+
 export function ReportScreen({ user, onSubmit, onCancel }: ReportScreenProps) {
   const [capturedPhoto, setCapturedPhoto] = useState<string>('');
   const [issueType, setIssueType] = useState<string>('');
   const [severity, setSeverity] = useState<number[]>([5]);
   const [description, setDescription] = useState<string>('');
   const [hasVoiceNote, setHasVoiceNote] = useState(false);
+  const [recordedAudioUrl, setRecordedAudioUrl] = useState<string | undefined>(undefined);
   const [aiAnalysis, setAiAnalysis] = useState<AIAnalysisResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const t = translations[user.language];
 
   // Trigger AI analysis when photo and description are available
   useEffect(() => {
-    if (capturedPhoto && description.length > 3) {
+    if (capturedPhoto && description.length > 2) {
       setIsAnalyzing(true);
-      // Simulate AI processing delay
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         const analysis = analyzeImage(capturedPhoto, description, {
           district: user.district,
-          ward: `Ward ${Math.floor(Math.random() * 20) + 1}`,
+          ward: 'Zone 1 - Laxmi Nagar (Ward 36)',
           coordinates: user.coordinates
         });
         setAiAnalysis(analysis);
         setIssueType(analysis.primaryIssue.toLowerCase());
         setSeverity([analysis.severity]);
         setIsAnalyzing(false);
-      }, 1500);
+      }, 1200);
+      return () => clearTimeout(timer);
     }
   }, [capturedPhoto, description, user]);
 
-  // Simulate camera capture
-  const handleCameraCapture = () => {
-    // Simulate photo capture with a random Unsplash image
-    const photoUrls = [
-      'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400',
-      'https://images.unsplash.com/photo-1609771405106-23d93a049d8b?w=400',
-      'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400',
-      'https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=400',
-      'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=400'
-    ];
-    const randomPhoto = photoUrls[Math.floor(Math.random() * photoUrls.length)];
-    setCapturedPhoto(randomPhoto);
+  // Handle Real Device Photo Upload / Camera Capture
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          const base64Url = event.target.result as string;
+          setCapturedPhoto(base64Url);
+          toast.success('Photo loaded successfully!');
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCameraTrigger = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleSelectSample = (sampleUrl: string, sampleType: string) => {
+    setCapturedPhoto(sampleUrl);
+    setIssueType(sampleType);
+    toast.info('Sample image loaded for demo testing');
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!capturedPhoto || !issueType) {
+      toast.error('Please capture a photo and select an issue type.');
       return;
     }
 
@@ -84,23 +107,26 @@ export function ReportScreen({ user, onSubmit, onCancel }: ReportScreenProps) {
     const newReport: Omit<Report, 'id' | 'timestamp' | 'upvotes' | 'comments' | 'distance' | 'hasUserUpvoted'> = {
       title: aiAnalysis?.primaryIssue 
         ? `${aiAnalysis.primaryIssue} issue detected` 
-        : `${selectedIssueType?.aiTag} reported`,
-      description: description || `${selectedIssueType?.aiTag} issue reported via Swachh Nagar`,
+        : `${selectedIssueType?.aiTag || 'Civic Issue'} reported`,
+      description: description || `${selectedIssueType?.aiTag || 'Civic'} issue reported via Awaaz-AI`,
       imageUrl: capturedPhoto,
       district: user.district,
-      ward: `Ward ${Math.floor(Math.random() * 20) + 1}`,
-      street: 'Current Location Street',
+      ward: 'Zone 1 - Laxmi Nagar (Ward 36)',
+      street: 'Wardha Road Corridor',
       coordinates: {
-        lat: user.coordinates.lat + (Math.random() - 0.5) * 0.01,
-        lng: user.coordinates.lng + (Math.random() - 0.5) * 0.01
+        lat: user.coordinates.lat + (Math.random() - 0.5) * 0.005,
+        lng: user.coordinates.lng + (Math.random() - 0.5) * 0.005
       },
-      aiTag: aiAnalysis?.primaryIssue || selectedIssueType?.aiTag || 'Unknown',
-      aiConfidence: aiAnalysis?.confidence || Math.floor(Math.random() * 15) + 85,
+      aiTag: aiAnalysis?.primaryIssue || selectedIssueType?.aiTag || 'Civic Issue',
+      aiConfidence: aiAnalysis?.confidence || 92,
       status: 'pending' as const,
       severity: aiAnalysis?.severity || severity[0],
       type: issueType,
       userId: 'current-user',
-      priority: (aiAnalysis?.priority === 'critical' ? 'high' : aiAnalysis?.priority) || (severity[0] >= 7 ? 'high' : severity[0] >= 4 ? 'medium' : 'low')
+      priority: (aiAnalysis?.priority === 'critical' ? 'high' : aiAnalysis?.priority) || (severity[0] >= 8 ? 'high' : severity[0] >= 5 ? 'medium' : 'low'),
+      suggestedDepartment: aiAnalysis?.suggestedDepartment,
+      audioUrl: recordedAudioUrl,
+      voiceDurationSeconds: hasVoiceNote ? 6 : undefined
     };
 
     onSubmit(newReport);
@@ -118,48 +144,98 @@ export function ReportScreen({ user, onSubmit, onCancel }: ReportScreenProps) {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Hidden File Input for Real Camera & Image Upload */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        accept="image/*"
+        capture="environment"
+        onChange={handleFileChange}
+        className="hidden"
+      />
+
       {/* Header */}
-      <div className="bg-white border-b sticky top-8 z-40">
+      <div className="bg-white border-b sticky top-0 z-40">
         <div className="flex items-center justify-between p-4">
           <Button variant="ghost" size="sm" onClick={onCancel}>
             <X className="w-4 h-4 mr-2" />
             {t.cancel}
           </Button>
-          <h1 className="text-lg text-primary">{t.report}</h1>
-          <div></div>
+          <h1 className="text-lg font-bold text-primary">{t.report}</h1>
+          <div className="w-8"></div>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="p-4 space-y-6">
-        {/* Camera Section */}
+      <form onSubmit={handleSubmit} className="p-4 space-y-5">
+        {/* Camera / Image Upload Section */}
         <div>
-          <label className="block text-sm mb-2">{t.capturePhoto} *</label>
+          <label className="block text-sm font-semibold mb-2 text-slate-800">
+            {t.capturePhoto} *
+          </label>
           <div className="relative">
             {!capturedPhoto ? (
-              <motion.div
-                className="aspect-video bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50"
-                onClick={handleCameraCapture}
-                whileTap={{ scale: 0.98 }}
-              >
-                <Camera className="w-12 h-12 text-gray-400 mb-2" />
-                <p className="text-sm text-gray-500">{t.capturePhoto}</p>
-              </motion.div>
+              <div className="space-y-2.5">
+                <motion.div
+                  className="aspect-video bg-slate-50 rounded-xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-100/80 transition-colors p-4"
+                  onClick={handleCameraTrigger}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-2">
+                    <Camera className="w-6 h-6 text-primary" />
+                  </div>
+                  <p className="text-sm font-medium text-slate-700">{t.capturePhoto}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Tap to open camera or browse files from your device
+                  </p>
+                </motion.div>
+
+                {/* Quick Sample Selector */}
+                <div>
+                  <span className="text-[11px] text-muted-foreground block mb-1">
+                    Or select a sample civic image:
+                  </span>
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {sampleCivicPhotos.map((s) => (
+                      <button
+                        key={s.label}
+                        type="button"
+                        onClick={() => handleSelectSample(s.url, s.type)}
+                        className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-[11px] text-slate-700 font-medium truncate text-center shadow-2xs"
+                      >
+                        {s.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
             ) : (
-              <div className="relative aspect-video">
+              <div className="relative aspect-video rounded-xl overflow-hidden border shadow-sm">
                 <ImageWithFallback
                   src={capturedPhoto}
                   alt="Captured photo"
-                  className="w-full h-full object-cover rounded-lg"
+                  className="w-full h-full object-cover"
                 />
-                <Button
-                  type="button"
-                  variant="destructive"
-                  size="sm"
-                  className="absolute top-2 right-2"
-                  onClick={() => setCapturedPhoto('')}
-                >
-                  <X className="w-4 h-4" />
-                </Button>
+                <div className="absolute top-2 right-2 flex gap-1.5">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    className="h-8 px-2.5 bg-white/90 hover:bg-white text-slate-800 text-xs shadow-sm"
+                    onClick={handleCameraTrigger}
+                  >
+                    <RefreshCw className="w-3.5 h-3.5 mr-1" />
+                    Change
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    className="h-8 w-8 p-0"
+                    onClick={() => setCapturedPhoto('')}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
             )}
           </div>
@@ -167,100 +243,72 @@ export function ReportScreen({ user, onSubmit, onCancel }: ReportScreenProps) {
 
         {/* AI Analysis Section */}
         {(aiAnalysis || isAnalyzing) && (
-          <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4 border border-blue-200">
-            <div className="flex items-center gap-2 mb-3">
-              <Brain className="w-5 h-5 text-blue-600" />
-              <h3 className="font-medium text-blue-900">AI Analysis</h3>
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200 shadow-2xs">
+            <div className="flex items-center gap-2 mb-2.5">
+              <Brain className="w-5 h-5 text-blue-600 animate-pulse" />
+              <h3 className="font-semibold text-blue-900 text-sm">Awaaz-AI Vision Engine</h3>
               {isAnalyzing && (
-                <div className="animate-pulse text-sm text-blue-600">Processing...</div>
+                <span className="text-xs font-medium text-blue-600 ml-auto">Analyzing image...</span>
               )}
             </div>
             
             {isAnalyzing ? (
               <div className="space-y-2">
-                <div className="animate-pulse bg-blue-200 h-4 rounded w-3/4"></div>
-                <div className="animate-pulse bg-blue-200 h-4 rounded w-1/2"></div>
-                <div className="animate-pulse bg-blue-200 h-4 rounded w-2/3"></div>
+                <div className="animate-pulse bg-blue-200/70 h-3.5 rounded w-3/4"></div>
+                <div className="animate-pulse bg-blue-200/70 h-3 rounded w-1/2"></div>
               </div>
             ) : aiAnalysis && (
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
+              <div className="space-y-2 text-xs">
+                <div className="flex items-center justify-between">
                   <Badge 
-                    className={`text-xs ${
-                      aiAnalysis.priority === 'critical' ? 'bg-red-100 text-red-800' :
-                      aiAnalysis.priority === 'high' ? 'bg-orange-100 text-orange-800' :
-                      aiAnalysis.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-green-100 text-green-800'
-                    }`}
+                    className={
+                      aiAnalysis.priority === 'critical' ? 'bg-red-600' :
+                      aiAnalysis.priority === 'high' ? 'bg-orange-600' : 'bg-blue-600'
+                    }
                   >
-                    {aiAnalysis.priority.toUpperCase()} PRIORITY
+                    {aiAnalysis.priority.toUpperCase()} PRIORITY ({aiAnalysis.confidence}% conf)
                   </Badge>
-                  <span className="text-sm text-gray-600">
-                    {aiAnalysis.confidence}% confidence
+                  <span className="text-slate-600">
+                    Est. {aiAnalysis.estimatedResolutionTime}
                   </span>
                 </div>
                 
-                <div className="text-sm space-y-1">
-                  <p><strong>Detected:</strong> {aiAnalysis.primaryIssue}</p>
-                  <p><strong>Department:</strong> {aiAnalysis.suggestedDepartment}</p>
-                  <p><strong>Est. Resolution:</strong> {aiAnalysis.estimatedResolutionTime}</p>
+                <div className="bg-white/80 p-2.5 rounded-lg border border-blue-100 space-y-1">
+                  <p><strong className="text-slate-800">Detected:</strong> {aiAnalysis.primaryIssue}</p>
+                  <p><strong className="text-slate-800">Target Dept:</strong> {aiAnalysis.suggestedDepartment}</p>
                 </div>
-                
-                {aiAnalysis.riskFactors.length > 0 && (
-                  <div className="flex items-start gap-2">
-                    <AlertTriangle className="w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0" />
-                    <div className="text-sm">
-                      <strong>Risk Factors:</strong>
-                      <ul className="text-gray-600 mt-1">
-                        {aiAnalysis.riskFactors.map((risk, index) => (
-                          <li key={index}>• {risk}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                )}
-                
-                {aiAnalysis.keywords.length > 0 && (
-                  <div className="flex flex-wrap gap-1">
-                    {aiAnalysis.keywords.map((keyword, index) => (
-                      <Badge key={index} variant="secondary" className="text-xs">
-                        {keyword}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
               </div>
             )}
           </div>
         )}
 
         {/* Auto-filled Location & Time */}
-        <div className="bg-gray-50 rounded-lg p-4 space-y-2">
-          <div className="flex items-center gap-2 text-sm">
-            <MapPin className="w-4 h-4 text-gray-500" />
-            <span className="text-gray-700">{t.location}:</span>
-            <span>{user.district}, {user.coordinates.lat.toFixed(4)}, {user.coordinates.lng.toFixed(4)}</span>
+        <div className="bg-slate-50 rounded-lg p-3 space-y-1.5 border text-xs text-slate-700">
+          <div className="flex items-center gap-2">
+            <MapPin className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+            <span><strong>Location:</strong> {user.district} ({user.coordinates.lat.toFixed(4)}, {user.coordinates.lng.toFixed(4)})</span>
           </div>
-          <div className="flex items-center gap-2 text-sm">
-            <Clock className="w-4 h-4 text-gray-500" />
-            <span className="text-gray-700">Time:</span>
-            <span>{date} {time}</span>
+          <div className="flex items-center gap-2">
+            <Clock className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
+            <span><strong>Timestamp:</strong> {date} {time}</span>
           </div>
         </div>
 
         {/* Issue Type */}
         <div>
-          <label className="block text-sm mb-2">{t.issueType} *</label>
+          <label className="block text-sm font-semibold mb-1.5 text-slate-800">
+            {t.issueType} *
+          </label>
           <Select value={issueType} onValueChange={setIssueType}>
             <SelectTrigger>
               <SelectValue placeholder={`${t.issueType}...`} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="road">{t.road}</SelectItem>
-              <SelectItem value="garbage">{t.garbage}</SelectItem>
-              <SelectItem value="water">{t.water}</SelectItem>
-              <SelectItem value="streetlight">{t.streetlight}</SelectItem>
-              <SelectItem value="drainage">Drainage</SelectItem>
+              <SelectItem value="road">{t.pothole} / {t.road}</SelectItem>
+              <SelectItem value="garbage">{t.garbagePile} / {t.garbage}</SelectItem>
+              <SelectItem value="water">{t.waterLogging} / {t.water}</SelectItem>
+              <SelectItem value="streetlight">{t.brokenStreetlight} / {t.streetlight}</SelectItem>
+              <SelectItem value="drainage">{t.drainageIssue}</SelectItem>
               <SelectItem value="other">{t.other}</SelectItem>
             </SelectContent>
           </Select>
@@ -268,8 +316,8 @@ export function ReportScreen({ user, onSubmit, onCancel }: ReportScreenProps) {
 
         {/* Severity Slider */}
         <div>
-          <label className="block text-sm mb-2">
-            {t.severity}: {severity[0]}/10
+          <label className="block text-sm font-semibold mb-1.5 text-slate-800">
+            {t.severity}: <span className="text-primary font-bold">{severity[0]} / 10</span>
           </label>
           <Slider
             value={severity}
@@ -279,18 +327,17 @@ export function ReportScreen({ user, onSubmit, onCancel }: ReportScreenProps) {
             step={1}
             className="w-full"
           />
-          <div className="flex justify-between text-xs text-gray-500 mt-1">
-            <span>Low</span>
-            <span>High</span>
+          <div className="flex justify-between text-xs text-muted-foreground mt-1">
+            <span>Minor (1-4)</span>
+            <span>Moderate (5-7)</span>
+            <span>Critical (8-10)</span>
           </div>
         </div>
 
         {/* Description */}
         <div>
-          <label className="block text-sm mb-2">
-            {t.description} {!aiAnalysis && capturedPhoto && (
-              <span className="text-blue-600 text-xs">• Add description for AI analysis</span>
-            )}
+          <label className="block text-sm font-semibold mb-1.5 text-slate-800">
+            {t.description}
           </label>
           <Textarea
             placeholder={`${t.description}...`}
@@ -300,13 +347,21 @@ export function ReportScreen({ user, onSubmit, onCancel }: ReportScreenProps) {
           />
         </div>
 
-        {/* Voice Note */}
+        {/* Voice Note (Real System Mic Recording) */}
         <div>
-          <label className="block text-sm mb-2">
+          <label className="block text-sm font-semibold mb-1.5 text-slate-800">
             {t.recordVoiceNote} ({t.optional})
           </label>
           <VoiceRecorder 
-            onRecordingComplete={setHasVoiceNote}
+            onRecordingComplete={(hasRec, audioBlobUrl, voiceTranscript) => {
+              setHasVoiceNote(hasRec);
+              setRecordedAudioUrl(hasRec ? audioBlobUrl : undefined);
+              if (voiceTranscript && voiceTranscript.trim()) {
+                setDescription((prev) =>
+                  prev ? `${prev} (Voice note: ${voiceTranscript})` : voiceTranscript
+                );
+              }
+            }}
             language={user.language}
           />
         </div>
@@ -314,7 +369,7 @@ export function ReportScreen({ user, onSubmit, onCancel }: ReportScreenProps) {
         {/* Submit Button */}
         <Button
           type="submit"
-          className="w-full"
+          className="w-full font-bold shadow-md h-11 text-base"
           disabled={!capturedPhoto || !issueType}
         >
           {user.isOnline ? t.submit : `${t.submit} (${t.savedOffline})`}

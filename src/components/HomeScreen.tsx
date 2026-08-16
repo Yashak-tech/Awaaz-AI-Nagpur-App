@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, ArrowUp, MessageCircle, Flag, X, Mic, Building2, Clock, MapPin, CheckCircle } from 'lucide-react';
+import { Search, ArrowUp, MessageCircle, Flag, X, Mic, Building2, Clock, MapPin, CheckCircle, Star } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Badge } from './ui/badge';
@@ -10,6 +10,10 @@ import { translations } from './translations';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { MediaCarousel } from './MediaCarousel';
 import { FloatingActionButton } from './FloatingActionButton';
+import { getSeverityColor } from '../utils/severityColors';
+import { RatingPrompt } from './RatingPrompt';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { AudioPlayer } from './AudioPlayer';
 
 interface HomeScreenProps {
   reports: Report[];
@@ -20,6 +24,9 @@ interface HomeScreenProps {
   selectedReport: Report | null;
   onCloseModal: () => void;
   onReportAgain: () => void;
+  isAdminView?: boolean;
+  onStatusUpdate?: (reportId: string, status: Report['status']) => void;
+  onRateReport?: (reportId: string, rating: number) => void;
 }
 
 export function HomeScreen({
@@ -30,7 +37,10 @@ export function HomeScreen({
   onAddComment,
   selectedReport,
   onCloseModal,
-  onReportAgain
+  onReportAgain,
+  isAdminView,
+  onStatusUpdate,
+  onRateReport
 }: HomeScreenProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [newComment, setNewComment] = useState('');
@@ -39,6 +49,8 @@ export function HomeScreen({
   const [upvotedReportId, setUpvotedReportId] = useState<string | null>(null);
   const [commentedReportId, setCommentedReportId] = useState<string | null>(null);
   const [tempComment, setTempComment] = useState('');
+  const [showRatingPrompt, setShowRatingPrompt] = useState(false);
+  const [ratingReportId, setRatingReportId] = useState<string | null>(null);
 
   const t = translations[user.language];
 
@@ -204,7 +216,16 @@ export function HomeScreen({
             {/* Report title and description */}
             <div className="mt-2 px-4 pb-2 flex-shrink-0">
               <h4 className="font-semibold text-gray-900 text-base mb-1 leading-tight line-clamp-2">{report.title}</h4>
-              <p className="text-sm text-gray-700 leading-relaxed line-clamp-2">{report.description}</p>
+              <p className="text-sm text-gray-700 leading-relaxed line-clamp-2 mb-1.5">{report.description}</p>
+              {report.audioUrl && (
+                <div className="mt-1 mb-1">
+                  <AudioPlayer
+                    audioUrl={report.audioUrl}
+                    durationSeconds={report.voiceDurationSeconds}
+                    compact={true}
+                  />
+                </div>
+              )}
             </div>
             
             {/* Media Carousel - Fixed height container */}
@@ -261,23 +282,11 @@ export function HomeScreen({
                     <span className="font-semibold">{report.comments.length}</span>
                   </button>
 
-                  {/* Priority indicator */}
-                  {report.priority && (
-                    <div className={`flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full ${
-                      report.priority === 'high' 
-                        ? 'bg-red-100 text-red-700' 
-                        : report.priority === 'medium'
-                        ? 'bg-yellow-100 text-yellow-700'
-                        : 'bg-green-100 text-green-700'
-                    }`}>
-                      <span className={`w-2 h-2 rounded-full ${
-                        report.priority === 'high' 
-                          ? 'bg-red-500' 
-                          : report.priority === 'medium'
-                          ? 'bg-yellow-500'
-                          : 'bg-green-500'
-                      }`}></span>
-                      {report.priority.charAt(0).toUpperCase() + report.priority.slice(1)}
+                  {/* Severity indicator */}
+                  {report.severity && (
+                    <div className={`flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full ${getSeverityColor(report.severity).bg} ${getSeverityColor(report.severity).text}`}>
+                      <span className={`w-2 h-2 rounded-full ${getSeverityColor(report.severity).dot}`}></span>
+                      {getSeverityColor(report.severity).label} ({report.severity}/10)
                     </div>
                   )}
                 </div>
@@ -394,7 +403,7 @@ export function HomeScreen({
               </div>
 
               <p className="text-sm text-muted-foreground mb-2">
-                {selectedReport.ward} • {selectedReport.street} • {selectedReport.distance}km
+                {selectedReport.ward} • {selectedReport.street} • {typeof selectedReport.distance === 'number' ? `${selectedReport.distance.toFixed(1)} km` : '0.3 km'}
               </p>
 
               <Badge variant="secondary" className="text-xs mb-3">
@@ -420,18 +429,17 @@ export function HomeScreen({
                 </div>
               </div>
 
-              <p className="text-sm mb-4">{selectedReport.description}</p>
+              <p className="text-sm mb-4 font-medium text-slate-800 leading-relaxed">{selectedReport.description}</p>
 
-              {/* Voice note placeholder */}
-              <div className="bg-gray-50 rounded-lg p-3 mb-4">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Mic className="w-4 h-4" />
-                  <span>Voice note (2:30)</span>
-                  <Button variant="ghost" size="sm" className="h-auto py-1 px-2 ml-auto">
-                    Play
-                  </Button>
+              {/* Real Interactive Voice Note Player */}
+              {selectedReport.audioUrl ? (
+                <div className="mb-4">
+                  <AudioPlayer
+                    audioUrl={selectedReport.audioUrl}
+                    durationSeconds={selectedReport.voiceDurationSeconds}
+                  />
                 </div>
-              </div>
+              ) : null}
             </div>
 
             {/* Actions */}
@@ -454,6 +462,69 @@ export function HomeScreen({
                 Flag
               </Button>
             </div>
+
+            {/* Admin Status Update Controls */}
+            {isAdminView && onStatusUpdate && (
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                <label className="text-sm font-medium text-amber-900 block mb-2">
+                  🔧 Admin: Update Status
+                </label>
+                <Select
+                  value={selectedReport.status}
+                  onValueChange={(value: string) => onStatusUpdate(selectedReport.id, value as Report['status'])}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="acknowledged">Acknowledged</SelectItem>
+                    <SelectItem value="repair_scheduled">Repair Scheduled</SelectItem>
+                    <SelectItem value="under_process">Under Process</SelectItem>
+                    <SelectItem value="submitted">Submitted</SelectItem>
+                    <SelectItem value="resolved">Resolved</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {/* Satisfaction Rating Display & Prompt */}
+            {selectedReport.status === 'resolved' && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-green-900">Resolution Rating</span>
+                  {selectedReport.satisfactionRating ? (
+                    <div className="flex items-center gap-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          className={`w-4 h-4 ${
+                            star <= selectedReport.satisfactionRating!
+                              ? 'text-yellow-400 fill-yellow-400'
+                              : 'text-gray-300'
+                          }`}
+                        />
+                      ))}
+                      <span className="text-sm text-green-700 ml-1">
+                        {selectedReport.satisfactionRating}/5
+                      </span>
+                    </div>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-xs"
+                      onClick={() => {
+                        setRatingReportId(selectedReport.id);
+                        setShowRatingPrompt(true);
+                      }}
+                    >
+                      ⭐ Rate Resolution
+                    </Button>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Comments */}
             <div>
@@ -488,6 +559,23 @@ export function HomeScreen({
             </div>
           </div>
         </motion.div>
+      )}
+
+      {/* Rating Prompt Modal */}
+      {ratingReportId && (
+        <RatingPrompt
+          isOpen={showRatingPrompt}
+          onClose={() => {
+            setShowRatingPrompt(false);
+            setRatingReportId(null);
+          }}
+          onRate={(rating) => {
+            if (onRateReport && ratingReportId) {
+              onRateReport(ratingReportId, rating);
+            }
+          }}
+          reportTitle={reports.find(r => r.id === ratingReportId)?.title || ''}
+        />
       )}
     </div>
   );

@@ -1,11 +1,13 @@
 import React from 'react';
-import { BarChart3, TrendingUp, TrendingDown, Minus, MapPin, Clock, Users, CheckCircle } from 'lucide-react';
+import { BarChart3, TrendingUp, TrendingDown, Minus, MapPin, Clock, Users, CheckCircle, Building, AlertTriangle, Sparkles, Star } from 'lucide-react';
 import { Badge } from './ui/badge';
 import { Card } from './ui/card';
 import { motion } from 'motion/react';
 import { Report, User } from '../App';
 import { translations } from './translations';
 import { generateInsights } from '../utils/aiClassification';
+import { getSeverityColor } from '../utils/severityColors';
+import { getAllPredictions } from '../utils/predictiveMaintenance';
 
 interface AnalyticsScreenProps {
   reports: Report[];
@@ -15,6 +17,58 @@ interface AnalyticsScreenProps {
 export function AnalyticsScreen({ reports, user }: AnalyticsScreenProps) {
   const t = translations[user.language];
   const insights = generateInsights(reports);
+  const predictiveRisks = getAllPredictions(reports);
+
+  // Group reports by Department
+  const departmentStats = React.useMemo(() => {
+    const deptMap: Record<string, { total: number; resolved: number; open: number; totalResTimeHours: number; ratings: number[] }> = {};
+
+    reports.forEach(report => {
+      const dept = report.suggestedDepartment || (
+        report.type === 'road' ? 'Public Works Department' :
+        report.type === 'garbage' ? 'Waste Management Department' :
+        report.type === 'streetlight' ? 'Electrical Department' :
+        report.type === 'water' ? 'Water Supply Department' :
+        report.type === 'drainage' ? 'Drainage Department' : 'General Municipal Services'
+      );
+
+      if (!deptMap[dept]) {
+        deptMap[dept] = { total: 0, resolved: 0, open: 0, totalResTimeHours: 0, ratings: [] };
+      }
+
+      deptMap[dept].total += 1;
+      if (report.status === 'resolved') {
+        deptMap[dept].resolved += 1;
+        if (report.resolvedAt) {
+          const hours = (new Date(report.resolvedAt).getTime() - new Date(report.timestamp).getTime()) / (1000 * 60 * 60);
+          deptMap[dept].totalResTimeHours += Math.max(hours, 1);
+        } else {
+          deptMap[dept].totalResTimeHours += 24; // simulated 1 day fallback
+        }
+      } else {
+        deptMap[dept].open += 1;
+      }
+
+      if (report.satisfactionRating) {
+        deptMap[dept].ratings.push(report.satisfactionRating);
+      }
+    });
+
+    return Object.entries(deptMap).map(([name, data]) => {
+      const resolutionRate = data.total > 0 ? Math.round((data.resolved / data.total) * 100) : 0;
+      const avgResTime = data.resolved > 0 ? (data.totalResTimeHours / data.resolved).toFixed(1) : 'N/A';
+      const avgRating = data.ratings.length > 0 ? (data.ratings.reduce((a, b) => a + b, 0) / data.ratings.length).toFixed(1) : null;
+      return {
+        name,
+        total: data.total,
+        resolved: data.resolved,
+        open: data.open,
+        resolutionRate,
+        avgResTime: avgResTime === 'N/A' ? 'Pending' : `${avgResTime}h`,
+        avgRating
+      };
+    });
+  }, [reports]);
 
   const statsCards = [
     {
@@ -60,7 +114,7 @@ export function AnalyticsScreen({ reports, user }: AnalyticsScreenProps) {
     .slice(0, 5)
     .map(report => ({
       ...report,
-      timeAgo: Math.floor((Date.now() - report.timestamp.getTime()) / (1000 * 60))
+      timeAgo: Math.floor((Date.now() - new Date(report.timestamp).getTime()) / (1000 * 60))
     }));
 
   return (
@@ -95,6 +149,98 @@ export function AnalyticsScreen({ reports, user }: AnalyticsScreenProps) {
             </motion.div>
           ))}
         </div>
+
+        {/* B2: Department Performance Tracking */}
+        <Card className="p-4">
+          <h3 className="font-medium mb-3 flex items-center justify-between">
+            <span className="flex items-center gap-2">
+              <Building className="w-4 h-4 text-primary" />
+              Department SLA & Performance
+            </span>
+            <Badge variant="outline" className="text-[10px]">Live Tracking</Badge>
+          </h3>
+          <p className="text-xs text-muted-foreground mb-4">
+            Monitoring NMC municipal departments across resolution velocity, active backlogs, and citizen feedback.
+          </p>
+
+          <div className="space-y-3">
+            {departmentStats.map((dept) => (
+              <div key={dept.name} className="p-3 rounded-lg border bg-slate-50/50 space-y-2">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900">{dept.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {dept.total} total cases • {dept.open} pending / {dept.resolved} resolved
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <Badge className={dept.resolutionRate >= 70 ? 'bg-emerald-600' : dept.resolutionRate >= 40 ? 'bg-amber-600' : 'bg-red-600'}>
+                      {dept.resolutionRate}% SLA
+                    </Badge>
+                  </div>
+                </div>
+
+                <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                  <div 
+                    className={`h-full ${dept.resolutionRate >= 70 ? 'bg-emerald-500' : dept.resolutionRate >= 40 ? 'bg-amber-500' : 'bg-red-500'}`}
+                    style={{ width: `${Math.max(dept.resolutionRate, 5)}%` }}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between text-xs text-muted-foreground pt-1">
+                  <span>Avg. Speed: <strong className="text-slate-700">{dept.avgResTime}</strong></span>
+                  {dept.avgRating && (
+                    <span className="flex items-center gap-1 text-amber-600 font-medium">
+                      <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                      {dept.avgRating} / 5.0
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        {/* B4: AI Predictive Maintenance Insights */}
+        <Card className="p-4 bg-gradient-to-br from-indigo-50/60 via-purple-50/40 to-slate-50 border-indigo-200">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold text-indigo-950 text-sm flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-indigo-600" />
+              AI Predictive Maintenance Insights
+            </h3>
+            <Badge className="bg-indigo-600 text-white text-[10px]">Rule-based Engine</Badge>
+          </div>
+          <p className="text-xs text-indigo-900/80 mb-3">
+            Pattern detection analyzes repeat incident clusters and seasonal risks before citizen escalation occurs.
+          </p>
+
+          <div className="space-y-3">
+            {predictiveRisks.length > 0 ? (
+              predictiveRisks.map((risk) => (
+                <div key={risk.id} className="bg-white p-3 rounded-lg border border-indigo-100 shadow-sm space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <AlertTriangle className={`w-4 h-4 ${risk.riskLevel === 'high' ? 'text-red-500' : 'text-amber-500'}`} />
+                      <p className="font-semibold text-xs text-slate-900">{risk.category}</p>
+                    </div>
+                    <Badge className={risk.riskLevel === 'high' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'}>
+                      {risk.riskLevel.toUpperCase()} RISK ({risk.confidence}% conf)
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-slate-700">{risk.description}</p>
+                  <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-1 border-t border-slate-100">
+                    <span>📍 {risk.ward}</span>
+                    <span className="text-indigo-700 font-medium">Pre-emptive dispatch recommended</span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="bg-white p-3 rounded-lg border border-indigo-100 text-center text-xs text-muted-foreground">
+                No high-probability repeat failure clusters detected at current thresholds.
+              </div>
+            )}
+          </div>
+        </Card>
 
         {/* Top Issue Types */}
         <Card className="p-4">
@@ -169,12 +315,8 @@ export function AnalyticsScreen({ reports, user }: AnalyticsScreenProps) {
                   <p className="text-sm font-medium truncate">{activity.title}</p>
                   <p className="text-xs text-muted-foreground">{activity.ward}</p>
                   <div className="flex items-center gap-2 mt-1">
-                    <Badge className={`text-xs ${
-                      activity.priority === 'high' ? 'bg-red-100 text-red-800' :
-                      activity.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-green-100 text-green-800'
-                    }`}>
-                      {activity.priority}
+                    <Badge className={`text-xs ${getSeverityColor(activity.severity).bg} ${getSeverityColor(activity.severity).text}`}>
+                      {getSeverityColor(activity.severity).label}
                     </Badge>
                     <span className="text-xs text-muted-foreground">
                       {activity.timeAgo}m ago

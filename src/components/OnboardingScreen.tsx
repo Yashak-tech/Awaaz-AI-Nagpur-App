@@ -22,8 +22,6 @@ const languageOptions = [
   { value: 'english', label: 'English' },
   { value: 'hindi', label: 'हिन्दी (Hindi)' },
   { value: 'marathi', label: 'मराठी (Marathi)' },
-  { value: 'bengali', label: 'বাংলা (Bengali)' },
-  { value: 'santhali', label: 'ᱥᱟᱱᱛᱟᱲᱤ (Santhali)' },
   { value: 'nagpuri', label: 'नागपुरी (Nagpuri)' }
 ];
 

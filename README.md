@@ -7,6 +7,7 @@
 [![Awaaz-AI](https://img.shields.io/badge/Awaaz--AI-The%20Nagpur%20App-emerald)](http://localhost:3000/)
 [![React](https://img.shields.io/badge/React-18.3.1-blue)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9.2-blue)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-6.3.5-purple)](https://vitejs.dev/)
 
 *Connecting Nagpur's citizens and civic administration in real time to identify, prioritize, and resolve urban infrastructure issues.*
 
@@ -26,17 +27,61 @@ Nagpur's civic infrastructure — **potholes, garbage overflow, broken streetlig
 
 ---
 
-## 💡 The Awaaz-AI Solution
+## 💡 Implemented Architecture & Features
 
-**Awaaz-AI — The Nagpur App** is a unified, intelligent, and inclusive civic infrastructure reporting and municipal management system built specifically for the **Nagpur Municipal Corporation (NMC)**. 
+**Awaaz-AI — The Nagpur App** implements a full suite of intelligent civic features designed for the **Nagpur Municipal Corporation (NMC)**:
 
-### 5 Core Operational Pillars:
+### 1. 🎙️ Real-Time Citizen Voice Note Recording & Playback
+- **Cross-Browser Microphone Engine**: Real microphone recording with noise cancellation, echo suppression, and automatic gain control.
+- **Base64 Audio Persistence**: Converts audio blobs into permanent Base64 data strings that survive component unmounting and page navigation.
+- **Interactive Audio Player**: Seekable scrubber, animated soundwave visualizer, time duration counter, one-tap replay, and native HTML5 playback fallback.
+- **Embedded Everywhere**: Accessible on Home feed cards, in the detailed complaint popup modal, and in the citizen's personal "My Reports" portal.
 
-1. **Real-time SLA Tracking & Transparency**: Citizens track complaints step-by-step (`Received → AI Classified → On-site Crew Assigned → Resolved`) with live SLA countdowns.
-2. **AI Duplicate Complaint Deduplication**: Proprietary proximity & image matching automatically merges duplicate complaints into single master tickets (`🔄 4 Duplicate Complaints Merged`), saving hundreds of municipal staff hours.
-3. **Smart AI Severity Prioritization**: Severity scoring (1-10) automatically prioritizes critical flood risks and water main bursts ahead of minor defects.
-4. **Inclusive Ward Equity & Voice Intake**: Multi-language support in **Marathi (मराठी)**, Nagpuri, Hindi, and English with voice note NLP transcription ensures equal service delivery for all 10 NMC zones.
-5. **Proactive AI Sensor & Early Warning Alerts**: Integrated sensor & predictive maintenance feed alerts crews about waste bin fill levels (>85%) and streetlight anomalies *before* citizen complaints escalate.
+### 2. 🔄 Real Duplicate Detection (Haversine Formula)
+- Geodesic distance calculation via the Haversine formula (`< 50m` threshold).
+- Category matching and 14-day recency check to automatically merge incoming duplicate complaints.
+- Increments `duplicateCount` on master tickets without creating redundant records.
+
+### 3. ⚡ IoT Streetlight Sensor Ingestion (Firebase RTDB)
+- Realtime subscription hook (`useStreetlightAlerts`) for IoT sensor nodes.
+- Auto-generates proactive repair tickets for faulty streetlights with stable IDs (`iot-{deviceId}`).
+- Gracefully falls back when unconfigured.
+
+### 4. 🎨 Consistent Severity Color Coding
+- Standardized scale across the entire application:
+  - **Critical (≥ 8)**: Red (`#ef4444`)
+  - **Moderate (5 - 7)**: Orange (`#f97316`)
+  - **Minor (< 5)**: Yellow (`#eab308`)
+- Reflected across Home feed badges, Leaflet interactive map markers, and Analytics logs.
+
+### 5. 🏙️ NMC Digital Twin Map & Urban Health Scores
+- Ward-level aggregation across Nagpur's 10 administrative zones.
+- **Urban Health Score Engine**: Dynamic formula evaluating open critical, moderate, and minor infrastructure backlogs per ward.
+- Geospatial mapping powered by Leaflet with interactive ward selection and deep-dive analytics.
+
+### 6. 🏢 Department Performance & SLA Tracking
+- Department-level grouping: Public Works Department, Waste Management, Electrical, Water Supply, and Drainage.
+- Real-time SLA compliance percentages, average resolution velocity, open backlog metrics, and average citizen satisfaction.
+
+### 7. ⭐ Citizen Satisfaction Rating (CSAT)
+- 1-to-5 star interactive rating prompt for resolved civic tickets.
+- Instant feedback loop embedded in the report detail modal and citizen profile view.
+
+### 8. 🔮 AI Predictive Maintenance Module *(Rule-based Simulation)*
+- Pattern detection for repeat infrastructure failure clusters (e.g. 2+ streetlight faults in the same zone).
+- Seasonal monsoon risk analysis for drainage and flood-prone corridors (e.g. Itwari, Central Avenue).
+- Generates pre-emptive maintenance warnings with confidence scores.
+
+### 9. 🛡️ Administrative Controls & Status Workflow
+- Admin mode toggle in Profile settings.
+- Direct status management (`pending → acknowledged → repair_scheduled → under_process → resolved`).
+
+### 10. 🗣️ Inclusive Multilingual Support
+- Tailored for Nagpur: **Marathi (मराठी)**, **Nagpuri (नागपुरी)**, **Hindi (हिन्दी)**, and **English**.
+
+### 11. 📱 Ultra-Responsive Mobile Design & Symmetric Navigation
+- Clean 5-slot bottom navbar with elevated, centered `+` (Post) action button.
+- 100% responsive on mobile devices with smooth card shadows, rounded corners, and touch-friendly targets.
 
 ---
 
@@ -67,15 +112,15 @@ Awaaz-AI natively structures civic issue routing, departmental dispatches, and w
 - **Vite 6.3.5** - Lightning-fast build tool and dev server
 - **Tailwind CSS** - Utility-first styling framework
 - **Framer Motion** - Smooth micro-animations
+- **shadcn/ui** - Accessible UI components (Dialog, Select, Tabs, Switch, Badge, Card)
+- **HTML5 Audio API / MediaRecorder** - Native audio capture & persistent playback
 
 ### Mapping & Geolocation
 - **Leaflet 1.9.4** - Interactive mobile-friendly map engine
 - **OpenStreetMap** - Geolocation centered at Nagpur (`21.1458° N, 79.0882° E`)
 
-### UI Components
-- **Lucide React** - High quality icon set
-- **Recharts** - Municipal analytics charts
-- **Sonner** - Toast notification system
+### Realtime & Backend Integration
+- **Firebase Realtime Database** - IoT sensor ingestion hook
 
 ---
 

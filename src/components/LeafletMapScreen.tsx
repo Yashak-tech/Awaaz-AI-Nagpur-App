@@ -9,6 +9,7 @@ import { Report, User } from '../App';
 import { translations } from './translations';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { getDistrictCenter, generateRandomCoordinates } from '../utils/mapConfig';
+import { getSeverityColor } from '../utils/severityColors';
 
 // Fix for default markers in Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -159,12 +160,13 @@ export function LeafletMapScreen({ reports, user, onReportSelect, onUpvote }: Le
       const coordinates = reportCoordinates.get(report.id);
       if (!coordinates) return;
       
-      // Create custom icon based on status
+      // Create custom icon based on severity
+      const severityColor = getSeverityColor(report.severity);
       const customIcon = L.divIcon({
         className: 'custom-leaflet-marker',
         html: `
           <div style="
-            background-color: ${getStatusColor(report.status)};
+            background-color: ${severityColor.hex};
             width: 32px;
             height: 32px;
             border-radius: 50%;
@@ -181,7 +183,7 @@ export function LeafletMapScreen({ reports, user, onReportSelect, onUpvote }: Le
             position: relative;
           ">
             📍
-            ${report.priority === 'high' ? `
+            ${report.severity >= 8 ? `
               <div style="
                 position: absolute;
                 top: -3px;

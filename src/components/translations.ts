@@ -1,4 +1,4 @@
-export type Language = 'english' | 'hindi' | 'marathi' | 'bengali' | 'santhali' | 'nagpuri';
+export type Language = 'english' | 'hindi' | 'marathi' | 'nagpuri';
 
 export const translations = {
   english: {
@@ -165,250 +165,86 @@ export const translations = {
     other: "अन्य"
   },
   
-  bengali: {
-    // Core UI strings
-    report: "রিপোর্ট করুন",
-    submit: "জমা দিন",
-    savedOffline: "স্থানীয়ভাবে সংরক্ষণ করা হয়েছে — অনলাইনে ফিরে এলে সিঙ্ক হবে",
-    demoLabel: "আওয়াজ-AI ডেমো — নাগপুর পৌরসংস্থা",
-    upvote: "আপভোট",
-    comment: "মন্তব্য",
-    map: "মানচিত্র", 
-    profile: "প্রোফাইল",
-    reportAgain: "আবার রিপোর্ট করুন",
-    statusPending: "স্থিতি: মুলতুবি",
-    statusInProgress: "স্থিতি: প্রক্রিয়াধীন",
-    statusResolved: "স্থিতি: সমাধান হয়েছে",
-    
-    // Additional strings  
-    home: "হোম",
-    requestLocation: "অবস্থানের অনুমতির অনুরোধ করুন",
-    useThisLocation: "এই অবস্থান ব্যবহার করুন",
-    selectDistrict: "জেলা নির্বাচন করুন",
-    allowLocation: "আপনার জেলা স্বয়ংক্রিয়ভাবে সনাক্ত করতে অবস্থান অ্যাক্সেসের অনুমতি দিন",
-    detectingLocation: "আপনার অবস্থান সনাক্ত করা হচ্ছে...",
-    locationDetected: "অবস্থান সনাক্ত করা হয়েছে:",
-    manualSelection: "অথবা ম্যানুয়ালি নির্বাচন করুন:",
-    selectLanguage: "ভাষা নির্বাচন করুন",
-    continue: "অব্যাহত রাখুন",
-    
-    // Report screen
-    capturePhoto: "ছবি তুলুন",
-    issueType: "সমস্যার ধরন",
-    severity: "গুরুত্ব",
-    description: "বিবরণ",
-    optional: "ঐচ্ছিক",
-    recordVoiceNote: "ভয়েস নোট রেকর্ড করুন",
-    location: "অবস্থান",
-    cancel: "বাতিল করুন",
-    
-    // Feed
-    localFeed: "স্থানীয় সামাজিক ফিড",
-    search: "কীওয়ার্ড বা ওয়ার্ড দিয়ে খুঁজুন...",
-    minutesAgo: "মিনিট আগে",
-    hoursAgo: "ঘণ্টা আগে",
-    daysAgo: "দিন আগে", 
-    confidence: "আস্থা",
-    comments: "মন্তব্য",
-    viewDetails: "বিস্তারিত দেখুন",
-    addComment: "মন্তব্য যোগ করুন...",
-    postComment: "পোস্ট করুন",
-    
-    // Map
-    allReports: "সকল",
-    road: "রাস্তা",
-    garbage: "আবর্জনা",
-    water: "পানি",
-    streetlight: "স্ট্রিট লাইট", 
-    unresolved: "অমীমাংসিত",
-    
-    // Profile
-    myReports: "আমার রিপোর্ট",
-    settings: "সেটিংস",
-    language: "ভাষা",
-    onlineMode: "অনলাইন মোড",
-    offlineMode: "অফলাইন মোড",
-    slaCountdown: "SLA: ৫ দিন বাকি",
-    rateResolution: "এই সমাধানটি রেট করুন",
-    
-    // Status and notifications
-    reportSubmitted: "রিপোর্ট সফলভাবে জমা দেওয়া হয়েছে! ID:",
-    syncComplete: "সিঙ্ক সম্পন্ন - রিপোর্ট আপলোড হয়েছে",
-    tamperDetected: "⚠️ ছেড়া ধরা পড়েছে",
-    highPriority: "🔴 উচ্চ অগ্রাধিকার",
-    
-    // Issue types
-    pothole: "গর্ত",
-    brokenRoad: "ভাঙা রাস্তা",
-    garbagePile: "আবর্জনার স্তূপ",
-    drainageIssue: "নিকাশি সমস্যা",
-    waterLogging: "জল জমে থাকা",
-    brokenStreetlight: "ভাঙা স্ট্রিট লাইট",
-    other: "অন্যান্য"
-  },
-  
-  santhali: {
-    // Core UI strings with transliterated placeholders
-    report: "Santhali: [Report placeholder]",
-    submit: "Santhali: [Submit placeholder]", 
-    savedOffline: "Santhali: [Saved locally placeholder]",
-    demoLabel: "Santhali: [Demo label placeholder]",
-    upvote: "Santhali: [Upvote placeholder]",
-    comment: "Santhali: [Comment placeholder]",
-    map: "Santhali: [Map placeholder]",
-    profile: "Santhali: [Profile placeholder]", 
-    reportAgain: "Santhali: [Report Again placeholder]",
-    statusPending: "Santhali: [Status Pending placeholder]",
-    statusInProgress: "Santhali: [Status Submitted placeholder]",
-    statusResolved: "Santhali: [Status Resolved placeholder]",
-    
-    // Additional strings
-    home: "Santhali: [Home placeholder]",
-    requestLocation: "Santhali: [Request Location placeholder]",
-    useThisLocation: "Santhali: [Use Location placeholder]",
-    selectDistrict: "Santhali: [Select District placeholder]",
-    allowLocation: "Santhali: [Allow Location placeholder]",
-    detectingLocation: "Santhali: [Detecting placeholder]",
-    locationDetected: "Santhali: [Location detected placeholder]",
-    manualSelection: "Santhali: [Manual selection placeholder]",
-    selectLanguage: "Santhali: [Select Language placeholder]",
-    continue: "Santhali: [Continue placeholder]",
-    
-    // Report screen
-    capturePhoto: "Santhali: [Capture Photo placeholder]",
-    issueType: "Santhali: [Issue Type placeholder]",
-    severity: "Santhali: [Severity placeholder]",
-    description: "Santhali: [Description placeholder]",
-    optional: "Santhali: [Optional placeholder]",
-    recordVoiceNote: "Santhali: [Voice Note placeholder]",
-    location: "Santhali: [Location placeholder]",
-    cancel: "Santhali: [Cancel placeholder]",
-    
-    // Feed
-    localFeed: "Santhali: [Local Feed placeholder]",
-    search: "Santhali: [Search placeholder]",
-    minutesAgo: "Santhali: [Minutes ago placeholder]",
-    hoursAgo: "Santhali: [Hours ago placeholder]",
-    daysAgo: "Santhali: [Days ago placeholder]",
-    confidence: "Santhali: [Confidence placeholder]",
-    comments: "Santhali: [Comments placeholder]",
-    viewDetails: "Santhali: [View Details placeholder]",
-    addComment: "Santhali: [Add Comment placeholder]",
-    postComment: "Santhali: [Post placeholder]",
-    
-    // Map
-    allReports: "Santhali: [All placeholder]",
-    road: "Santhali: [Road placeholder]",
-    garbage: "Santhali: [Garbage placeholder]",
-    water: "Santhali: [Water placeholder]",
-    streetlight: "Santhali: [Streetlight placeholder]",
-    unresolved: "Santhali: [Unresolved placeholder]",
-    
-    // Profile
-    myReports: "Santhali: [My Reports placeholder]",
-    settings: "Santhali: [Settings placeholder]",
-    language: "Santhali: [Language placeholder]",
-    onlineMode: "Santhali: [Online Mode placeholder]",
-    offlineMode: "Santhali: [Offline Mode placeholder]",
-    slaCountdown: "Santhali: [SLA placeholder]",
-    rateResolution: "Santhali: [Rate Resolution placeholder]",
-    
-    // Status and notifications
-    reportSubmitted: "Santhali: [Report Submitted placeholder]",
-    syncComplete: "Santhali: [Sync Complete placeholder]",
-    tamperDetected: "Santhali: [Tamper Detected placeholder]",
-    highPriority: "Santhali: [High Priority placeholder]",
-    
-    // Issue types
-    pothole: "Santhali: [Pothole placeholder]",
-    brokenRoad: "Santhali: [Broken Road placeholder]",
-    garbagePile: "Santhali: [Garbage Pile placeholder]",
-    drainageIssue: "Santhali: [Drainage placeholder]",
-    waterLogging: "Santhali: [Water Logging placeholder]",
-    brokenStreetlight: "Santhali: [Broken Streetlight placeholder]",
-    other: "Santhali: [Other placeholder]"
-  },
-  
   nagpuri: {
-    // Core UI strings with transliterated placeholders
-    report: "Nagpuri: [Report placeholder]",
-    submit: "Nagpuri: [Submit placeholder]",
-    savedOffline: "Nagpuri: [Saved locally placeholder]",
-    demoLabel: "Nagpuri: [Demo label placeholder]",
-    upvote: "Nagpuri: [Upvote placeholder]",
-    comment: "Nagpuri: [Comment placeholder]",
-    map: "Nagpuri: [Map placeholder]",
-    profile: "Nagpuri: [Profile placeholder]",
-    reportAgain: "Nagpuri: [Report Again placeholder]",
-    statusPending: "Nagpuri: [Status Pending placeholder]",
-    statusInProgress: "Nagpuri: [Status Submitted placeholder]",
-    statusResolved: "Nagpuri: [Status Resolved placeholder]",
+    // Core UI strings with authentic Nagpuri (Varhadi) phrasing
+    report: "तक्रार नोंदवा",
+    submit: "सबमिट करा",
+    savedOffline: "फोन मंधी सेव्ह झालं — नेट आल्यावर पाठवू",
+    demoLabel: "आवाज़-AI डेमो — नागपूर महानगरपालिका",
+    upvote: "सपोर्ट करा",
+    comment: "सांगा काय वाटतं",
+    map: "नकाशा",
+    profile: "प्रोफाइल",
+    reportAgain: "आणखी एक तक्रार",
+    statusPending: "स्थिती: बाकी आहे",
+    statusInProgress: "स्थिती: काम चालू हाय",
+    statusResolved: "स्थिती: निवारण झालं",
     
     // Additional strings
-    home: "Nagpuri: [Home placeholder]",
-    requestLocation: "Nagpuri: [Request Location placeholder]",
-    useThisLocation: "Nagpuri: [Use Location placeholder]",
-    selectDistrict: "Nagpuri: [Select District placeholder]",
-    allowLocation: "Nagpuri: [Allow Location placeholder]",
-    detectingLocation: "Nagpuri: [Detecting placeholder]",
-    locationDetected: "Nagpuri: [Location detected placeholder]",
-    manualSelection: "Nagpuri: [Manual selection placeholder]",
-    selectLanguage: "Nagpuri: [Select Language placeholder]",
-    continue: "Nagpuri: [Continue placeholder]",
+    home: "मुख्य पान",
+    requestLocation: "जागा दाखवा",
+    useThisLocation: "हीच जागा ठेवा",
+    selectDistrict: "भाग निवडा",
+    allowLocation: "तुमचा मनपा प्रभाग ओळखायला लोकेशन चालू करा",
+    detectingLocation: "जागा शोधत हाय...",
+    locationDetected: "जागा सापडली:",
+    manualSelection: "किंवा स्वतः निवडा:",
+    selectLanguage: "भाषा निवडा",
+    continue: "पुढे चला",
     
     // Report screen
-    capturePhoto: "Nagpuri: [Capture Photo placeholder]",
-    issueType: "Nagpuri: [Issue Type placeholder]",
-    severity: "Nagpuri: [Severity placeholder]",
-    description: "Nagpuri: [Description placeholder]",
-    optional: "Nagpuri: [Optional placeholder]",
-    recordVoiceNote: "Nagpuri: [Voice Note placeholder]",
-    location: "Nagpuri: [Location placeholder]",
-    cancel: "Nagpuri: [Cancel placeholder]",
+    capturePhoto: "फोटो काढा किंवा अपलोड करा",
+    issueType: "काय अडचण हाय?",
+    severity: "त्रास किती हाय?",
+    description: "सविस्तर सांगा",
+    optional: "ऐच्छिक",
+    recordVoiceNote: "आवाज रेकॉर्ड करा",
+    location: "जागा",
+    cancel: "रद्द करा",
     
     // Feed
-    localFeed: "Nagpuri: [Local Feed placeholder]",
-    search: "Nagpuri: [Search placeholder]",
-    minutesAgo: "Nagpuri: [Minutes ago placeholder]",
-    hoursAgo: "Nagpuri: [Hours ago placeholder]",
-    daysAgo: "Nagpuri: [Days ago placeholder]",
-    confidence: "Nagpuri: [Confidence placeholder]",
-    comments: "Nagpuri: [Comments placeholder]",
-    viewDetails: "Nagpuri: [View Details placeholder]",
-    addComment: "Nagpuri: [Add Comment placeholder]",
-    postComment: "Nagpuri: [Post placeholder]",
+    localFeed: "नागपूर स्थानिक फीड",
+    search: "प्रभाग किंवा शब्द शोधा...",
+    minutesAgo: "मिनिटां आधी",
+    hoursAgo: "तासां आधी",
+    daysAgo: "दिवसां आधी",
+    confidence: "विश्वास",
+    comments: "प्रतिक्रिया",
+    viewDetails: "तपशील बघा",
+    addComment: "प्रतिक्रिया लिहा...",
+    postComment: "पाठवा",
     
     // Map
-    allReports: "Nagpuri: [All placeholder]",
-    road: "Nagpuri: [Road placeholder]",
-    garbage: "Nagpuri: [Garbage placeholder]",
-    water: "Nagpuri: [Water placeholder]",
-    streetlight: "Nagpuri: [Streetlight placeholder]",
-    unresolved: "Nagpuri: [Unresolved placeholder]",
+    allReports: "सगळं",
+    road: "रस्ता",
+    garbage: "कचरा",
+    water: "पाणी",
+    streetlight: "पथदिवे",
+    unresolved: "बाकी हाय",
     
     // Profile
-    myReports: "Nagpuri: [My Reports placeholder]",
-    settings: "Nagpuri: [Settings placeholder]",
-    language: "Nagpuri: [Language placeholder]",
-    onlineMode: "Nagpuri: [Online Mode placeholder]",
-    offlineMode: "Nagpuri: [Offline Mode placeholder]",
-    slaCountdown: "Nagpuri: [SLA placeholder]",
-    rateResolution: "Nagpuri: [Rate Resolution placeholder]",
+    myReports: "माझ्या तक्रारी",
+    settings: "सेटिंग्ज",
+    language: "भाषा",
+    onlineMode: "ऑनलाइन मोड",
+    offlineMode: "ऑफलाइन मोड",
+    slaCountdown: "SLA: ५ दिवस बाकी",
+    rateResolution: "काम कसं झालं सांगा",
     
     // Status and notifications
-    reportSubmitted: "Nagpuri: [Report Submitted placeholder]",
-    syncComplete: "Nagpuri: [Sync Complete placeholder]",
-    tamperDetected: "Nagpuri: [Tamper Detected placeholder]",
-    highPriority: "Nagpuri: [High Priority placeholder]",
+    reportSubmitted: "तक्रार पाठवली गेली! आयडी:",
+    syncComplete: "सिंक पूर्ण — तक्रार गेली",
+    tamperDetected: "⚠️ काहीतरी गडबड दिसली",
+    highPriority: "🔴 तातडीचं काम",
     
     // Issue types
-    pothole: "Nagpuri: [Pothole placeholder]",
-    brokenRoad: "Nagpuri: [Broken Road placeholder]",
-    garbagePile: "Nagpuri: [Garbage Pile placeholder]",
-    drainageIssue: "Nagpuri: [Drainage placeholder]",
-    waterLogging: "Nagpuri: [Water Logging placeholder]",
-    brokenStreetlight: "Nagpuri: [Broken Streetlight placeholder]",
-    other: "Nagpuri: [Other placeholder]"
+    pothole: "खड्डा",
+    brokenRoad: "खराब रस्ता",
+    garbagePile: "कचऱ्याचा ढीग",
+    drainageIssue: "नाली जाम",
+    waterLogging: "पाणी साचलं",
+    brokenStreetlight: "बंद लाईट",
+    other: "इतर समस्या"
   },
 
   marathi: {
