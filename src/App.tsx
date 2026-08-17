@@ -823,6 +823,7 @@ export default function App() {
                 isAdminView={isAdminView}
                 onStatusUpdate={handleStatusUpdate}
                 onRateReport={handleRateReport}
+                onNavigateToMap={() => setCurrentScreen('map')}
               />
             )}
             

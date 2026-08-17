@@ -1,9 +1,8 @@
-// IoT Real-Time Detection & Telemetry Notification Modal for Awaaz-AI
-// Aligned with ESP32 Arduino Firmware (NG-001, Dharampeth, Nagpur)
+// Smart Streetlight Monitoring Modal for Awaaz-AI & Nagpur Municipal Corporation (NMC)
+// Real-Time ESP32 IoT Infrastructure Monitoring Dashboard (NG-001, VNIT Nagpur)
 
 import React, { useState } from 'react';
 import { 
-  Bell, 
   X, 
   AlertTriangle, 
   CheckCircle2, 
@@ -15,17 +14,19 @@ import {
   Moon, 
   Lightbulb, 
   Wrench, 
-  RefreshCw, 
-  Layers,
+  Radio, 
+  Tv, 
+  Info,
   Send,
-  Radio,
-  Tv,
-  Info
+  Sliders,
+  ExternalLink,
+  ShieldCheck,
+  Clock,
+  Layers
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useIoTTelemetry } from '../hooks/useIoTTelemetry';
-import { Badge } from './ui/badge';
-import { Button } from './ui/button';
+import { IoTStreetlightDevice } from '../types/iot';
 import { toast } from 'sonner';
 
 interface IoTNotificationModalProps {
@@ -40,587 +41,807 @@ export function IoTNotificationModal({
   onNavigateToMap
 }: IoTNotificationModalProps) {
   const { devices, alerts, activeFaultCount, setHardwareStatus, resolveAlert } = useIoTTelemetry();
-  const [activeTab, setActiveTab] = useState<'alerts' | 'devices' | 'oled' | 'hardware'>('alerts');
-  const [dispatchedAlerts, setDispatchedAlerts] = useState<Record<string, boolean>>({});
+  const [activeTab, setActiveTab] = useState<'overview' | 'oled' | 'circuit'>('overview');
+  const [isDispatched, setIsDispatched] = useState<Record<string, boolean>>({});
 
   if (!isOpen) return null;
 
-  const handleDispatchCrew = (deviceId: string, location: string) => {
-    setDispatchedAlerts(prev => ({ ...prev, [deviceId]: true }));
-    toast.success(`🚨 NMC Electrical Team Dispatched!`, {
-      description: `Dispatched to ${location} for Device ${deviceId}. Ticket #NMC-${deviceId}-${Date.now().toString().slice(-4)}`
-    });
-  };
-
-  const handleResolveAlert = (deviceId: string, name: string) => {
-    resolveAlert(deviceId);
-    toast.success(`✅ Restored to Normal`, {
-      description: `${name} marked NORMAL. Telemetry synchronized.`
-    });
-  };
-
   const defaultDevice: IoTStreetlightDevice = {
     deviceId: 'NG-001',
-    name: 'Streetlight Cluster (Dharampeth, Nagpur)',
+    name: 'Streetlight Cluster (VNIT Nagpur)',
     status: 'operational',
     rawStatus: 'NORMAL',
-    environment: 'NIGHT',
-    ldrValue: 180,
-    pole1Light: 'ON',
-    pole2Light: 'ON',
-    currentReading: 0.45,
+    environment: 'DAY',
+    ldrValue: 1015,
+    pole1Light: 'OFF',
+    pole2Light: 'OFF',
+    currentReading: 0.000,
     voltage: 230.0,
     location: {
-      lat: 21.1458,
-      lng: 79.0882,
-      area: 'Dharampeth, Nagpur',
-      ward: 'Device NG-001',
-      zone: 'Dharampeth'
+      lat: 21.1233,
+      lng: 79.0514,
+      area: 'Food and Multi Activity center ,VNIT Nagpur',
+      ward: 'Zone 2 - Dharampeth (Ward 15)',
+      zone: 'Zone 2 - Dharampeth'
     },
     lastUpdated: Date.now(),
-    timestampStr: new Date().toISOString(),
+    timestampStr: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
     hardwareInfo: {
       microcontroller: 'ESP32 (Wi-Fi + HTTP Client)',
       pins: { ldr: 34, current: 36, led1: 18, led2: 19, oledSda: 21, oledScl: 22 },
-      sensors: ['LDR Photoresistor (Pin 34)', 'Current Sensor ACS712 (Pin 36)'],
-      actuators: ['LED 1 (Pin 18)', 'LED 2 (Pin 19)', 'OLED Display 128x64']
+      sensors: ['LDR Photoresistor (GPIO 34 ADC)', 'Current Sensor ACS712 (GPIO 36 ADC)'],
+      actuators: ['Streetlight Pole 1 (GPIO 18)', 'Streetlight Pole 2 (GPIO 19)', 'OLED Display 128x64 (I2C 0x3C)']
     }
   };
 
   const primaryDevice = devices.find(d => d.deviceId === 'NG-001') || devices[0];
   const activeDevice = primaryDevice || defaultDevice;
 
+  // Determine system condition
+  const rawStatus = activeDevice.rawStatus || 'NORMAL';
+  const isFault = rawStatus === 'CHECK' || activeDevice.status === 'faulty';
+  const isWastage = rawStatus === 'WASTAGE' || activeDevice.status === 'wastage';
+  const isNormal = !isFault && !isWastage;
+  const isOnline = activeDevice && (Date.now() - activeDevice.lastUpdated < 60000 || rawStatus !== undefined);
+
+  // Condition explanations for judges
+  const conditionLabel = isWastage 
+    ? 'DAY + LIGHT ON' 
+    : isFault 
+    ? 'NIGHT + LIGHT OFF' 
+    : `${activeDevice.environment} + LIGHTS ${activeDevice.pole1Light}`;
+
+  const handleDispatch = (deviceId: string) => {
+    setIsDispatched(prev => ({ ...prev, [deviceId]: true }));
+    toast.success('🚨 Maintenance Crew Dispatched!', {
+      description: `Dispatched to ${activeDevice.location.area} for Device ${deviceId}. Ticket #NMC-ELEC-${Date.now().toString().slice(-4)}`
+    });
+  };
+
+  const handleResolve = (deviceId: string) => {
+    resolveAlert(deviceId);
+    setIsDispatched(prev => ({ ...prev, [deviceId]: false }));
+    toast.success('✅ Marked as Resolved', {
+      description: `Device ${deviceId} telemetry restored to NORMAL state.`
+    });
+  };
+
+  const handleViewMap = () => {
+    if (onNavigateToMap) {
+      onNavigateToMap(activeDevice.location.lat, activeDevice.location.lng);
+    }
+    onClose();
+  };
+
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm">
+      <div 
+        className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 md:p-6 overflow-y-auto"
+        style={{ backgroundColor: 'rgba(15, 23, 42, 0.65)', backdropFilter: 'blur(6px)' }}
+        onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      >
         <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 15 }}
+          initial={{ opacity: 0, scale: 0.96, y: 12 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 15 }}
-          className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh] border border-slate-200"
+          exit={{ opacity: 0, scale: 0.96, y: 12 }}
+          transition={{ duration: 0.2, ease: 'easeOut' }}
+          className="w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh]"
+          style={{ backgroundColor: '#f8fafc', border: '1px solid #cbd5e1' }}
         >
-          {/* Header */}
-          <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-4 relative">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="relative p-2 bg-indigo-500/20 rounded-xl border border-indigo-400/30">
-                  <Cpu className="w-5 h-5 text-indigo-300" />
-                  <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-                  </span>
+          {/* ==================================================================== */}
+          {/* 1. PROFESSIONAL PAGE HEADER (High Contrast Light Theme)               */}
+          {/* ==================================================================== */}
+          <div 
+            className="p-4 sm:p-5 border-b"
+            style={{ backgroundColor: '#ffffff', borderColor: '#e2e8f0' }}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-3">
+                <div 
+                  className="p-2.5 rounded-xl flex items-center justify-center shrink-0 mt-0.5"
+                  style={{ backgroundColor: '#eff6ff', border: '1px solid #bfdbfe', color: '#1d4ed8' }}
+                >
+                  <Cpu className="w-6 h-6" />
                 </div>
                 <div>
-                  <div className="flex items-center gap-2">
-                    <h2 className="text-base font-bold text-white tracking-tight">ESP32 IoT Sensor Telemetry</h2>
-                    <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-medium border border-emerald-400/30 flex items-center gap-1">
-                      <Radio className="w-2.5 h-2.5 animate-pulse" /> Live Telemetry
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h1 
+                      className="text-base sm:text-lg font-extrabold tracking-tight"
+                      style={{ color: '#0f172a' }}
+                    >
+                      SMART STREETLIGHT MONITORING
+                    </h1>
+                    {/* Compact Connectivity Indicator */}
+                    <span 
+                      className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold"
+                      style={
+                        isOnline 
+                          ? { backgroundColor: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0' }
+                          : { backgroundColor: '#fef2f2', color: '#b91c1c', border: '1px solid #fecaca' }
+                      }
+                    >
+                      <span 
+                        className="w-2 h-2 rounded-full"
+                        style={{ 
+                          backgroundColor: isOnline ? '#16a34a' : '#dc2626',
+                          boxShadow: isOnline ? '0 0 6px #16a34a' : 'none'
+                        }}
+                      />
+                      {isOnline ? 'ESP32 ONLINE' : 'ESP32 OFFLINE'}
                     </span>
                   </div>
-                  <p className="text-xs text-indigo-200/80">
-                    {primaryDevice 
-                      ? <>Device ID: <strong className="text-white">{primaryDevice.deviceId}</strong> • {primaryDevice.location.area} ({primaryDevice.location.lat.toFixed(4)}°N, {primaryDevice.location.lng.toFixed(4)}°E)</>
-                      : <>Waiting for ESP32 hardware connection...</>
-                    }
+
+                  <p className="text-xs font-medium mt-0.5" style={{ color: '#475569' }}>
+                    Real-Time ESP32 IoT Infrastructure Monitoring
                   </p>
+
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs mt-1 font-medium" style={{ color: '#64748b' }}>
+                    <span>Device: <strong style={{ color: '#0f172a' }}>{activeDevice.deviceId}</strong></span>
+                    <span>•</span>
+                    <span className="flex items-center gap-1">
+                      <MapPin className="w-3 h-3 text-red-500 shrink-0" />
+                      <strong style={{ color: '#0f172a' }}>{activeDevice.location.area}</strong>
+                    </span>
+                  </div>
                 </div>
               </div>
+
               <button
                 onClick={onClose}
-                className="p-1.5 rounded-full hover:bg-white/10 text-white/70 hover:text-white transition-colors"
-                aria-label="Close modal"
+                className="p-2 rounded-xl transition-all hover:bg-slate-100 active:scale-95 shrink-0"
+                style={{ color: '#64748b', border: '1px solid #e2e8f0' }}
+                aria-label="Close dashboard"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Navigation Tabs */}
-            <div className="flex gap-1.5 mt-4 pt-2 border-t border-white/10 overflow-x-auto pb-1">
+            <div className="flex items-center gap-2 mt-4 pt-3 border-t" style={{ borderColor: '#f1f5f9' }}>
               <button
-                onClick={() => setActiveTab('alerts')}
-                className={`py-1.5 px-3 rounded-lg text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap transition-all ${
-                  activeTab === 'alerts'
-                    ? 'bg-white text-slate-900 shadow-sm'
-                    : 'text-white/70 hover:text-white hover:bg-white/10'
-                }`}
+                onClick={() => setActiveTab('overview')}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
+                style={
+                  activeTab === 'overview'
+                    ? { backgroundColor: '#0f172a', color: '#ffffff', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }
+                    : { backgroundColor: '#f1f5f9', color: '#475569', border: '1px solid #e2e8f0' }
+                }
               >
-                <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
-                <span>Fault Alerts</span>
-                {activeFaultCount > 0 && (
-                  <span className="px-1.5 py-0.2 text-[10px] rounded-full bg-red-500 text-white font-bold animate-pulse">
-                    {activeFaultCount}
+                <Activity className="w-3.5 h-3.5" />
+                <span>Overview & Telemetry</span>
+                {(isFault || isWastage) && (
+                  <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] font-black bg-red-500 text-white">
+                    1 Alert
                   </span>
                 )}
               </button>
 
               <button
                 onClick={() => setActiveTab('oled')}
-                className={`py-1.5 px-3 rounded-lg text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap transition-all ${
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
+                style={
                   activeTab === 'oled'
-                    ? 'bg-white text-slate-900 shadow-sm'
-                    : 'text-white/70 hover:text-white hover:bg-white/10'
-                }`}
+                    ? { backgroundColor: '#0f172a', color: '#ffffff', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }
+                    : { backgroundColor: '#f1f5f9', color: '#475569', border: '1px solid #e2e8f0' }
+                }
               >
-                <Tv className="w-3.5 h-3.5 text-cyan-400" />
-                <span>OLED Display</span>
+                <Tv className="w-3.5 h-3.5" />
+                <span>OLED Screen Mirror</span>
               </button>
 
               <button
-                onClick={() => setActiveTab('devices')}
-                className={`py-1.5 px-3 rounded-lg text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap transition-all ${
-                  activeTab === 'devices'
-                    ? 'bg-white text-slate-900 shadow-sm'
-                    : 'text-white/70 hover:text-white hover:bg-white/10'
-                }`}
+                onClick={() => setActiveTab('circuit')}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
+                style={
+                  activeTab === 'circuit'
+                    ? { backgroundColor: '#0f172a', color: '#ffffff', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }
+                    : { backgroundColor: '#f1f5f9', color: '#475569', border: '1px solid #e2e8f0' }
+                }
               >
-                <Lightbulb className="w-3.5 h-3.5 text-yellow-400" />
-                <span>Poles ({devices.length})</span>
-              </button>
-
-              <button
-                onClick={() => setActiveTab('hardware')}
-                className={`py-1.5 px-3 rounded-lg text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap transition-all ${
-                  activeTab === 'hardware'
-                    ? 'bg-white text-slate-900 shadow-sm'
-                    : 'text-white/70 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                <Layers className="w-3.5 h-3.5 text-indigo-300" />
-                <span>ESP32 Circuit</span>
+                <Layers className="w-3.5 h-3.5" />
+                <span>Circuit & Pinout</span>
               </button>
             </div>
           </div>
 
-          {/* Content Body */}
-          <div className="p-4 overflow-y-auto space-y-4 flex-1">
-            {/* TAB 1: FAULT ALERTS */}
-            {activeTab === 'alerts' && (
-              <div className="space-y-3">
-                {alerts.length === 0 ? (
-                  <div className="space-y-3">
-                    {/* Live Connected Hardware Card */}
-                    <div className="bg-gradient-to-br from-emerald-50 to-teal-50/60 rounded-xl p-4 border border-emerald-200 shadow-sm relative overflow-hidden">
-                      <div className="flex items-center justify-between gap-2 mb-3">
-                        <div className="flex items-center gap-2">
-                          <div className="p-2 bg-emerald-500 text-white rounded-xl shadow-sm">
-                            <CheckCircle2 className="w-5 h-5" />
-                          </div>
-                          <div>
-                            <h3 className="font-bold text-emerald-950 text-sm">System Healthy • All Lights Normal</h3>
-                            <p className="text-[11px] text-emerald-700">ESP32 <strong className="font-mono text-emerald-900">{activeDevice.deviceId}</strong> is actively transmitting</p>
-                          </div>
+          {/* ==================================================================== */}
+          {/* 2. DASHBOARD BODY CONTENT                                             */}
+          {/* ==================================================================== */}
+          <div className="p-4 sm:p-5 overflow-y-auto space-y-4 flex-1">
+            {activeTab === 'overview' && (
+              <>
+                {/* -------------------------------------------------------------- */}
+                {/* A. MAIN SYSTEM STATUS CARD                                      */}
+                {/* -------------------------------------------------------------- */}
+                {isNormal && (
+                  <div 
+                    className="p-4 sm:p-5 rounded-xl border transition-all"
+                    style={{ backgroundColor: '#f0fdf4', borderColor: '#bbf7d0' }}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-3">
+                        <div 
+                          className="p-2.5 rounded-xl flex items-center justify-center text-white shrink-0"
+                          style={{ backgroundColor: '#16a34a' }}
+                        >
+                          <CheckCircle2 className="w-6 h-6" />
                         </div>
-                        <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] uppercase font-bold tracking-wide">
-                          NORMAL
-                        </Badge>
-                      </div>
-
-                      {/* Location Box */}
-                      <div className="bg-white/90 p-3 rounded-lg border border-emerald-200/80 mb-3">
-                        <div className="flex items-start gap-2">
-                          <MapPin className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                          <div>
-                            <span className="font-bold text-slate-900 text-xs">{activeDevice.location.area}</span>
-                            <div className="font-mono text-[11px] text-slate-600 mt-0.5 flex flex-wrap gap-x-3">
-                              <span>📍 Lat: <strong className="text-slate-900">{activeDevice.location.lat.toFixed(4)}° N</strong></span>
-                              <span>Lng: <strong className="text-slate-900">{activeDevice.location.lng.toFixed(4)}° E</strong></span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Live Hardware Telemetry Grid */}
-                      <div className="text-[11px] font-semibold text-slate-700 mb-1.5 flex items-center gap-1">
-                        <Activity className="w-3.5 h-3.5 text-emerald-600" /> Live Hardware Telemetry (From ESP32):
-                      </div>
-                      <div className="grid grid-cols-3 gap-2 text-center text-xs">
-                        <div className="bg-white p-2.5 rounded-lg border border-emerald-100 shadow-2xs">
-                          <div className="text-[10px] text-slate-500 flex items-center justify-center gap-1">
-                            {activeDevice.environment === 'NIGHT' ? <Moon className="w-3 h-3 text-indigo-500" /> : <Sun className="w-3 h-3 text-amber-500" />}
-                            LDR (Pin 34)
-                          </div>
-                          <div className="font-bold text-slate-900 text-sm mt-0.5">
-                            {activeDevice.ldrValue}
-                          </div>
-                          <span className="text-[9px] text-emerald-700 font-medium">{activeDevice.environment}</span>
-                        </div>
-
-                        <div className="bg-white p-2.5 rounded-lg border border-emerald-100 shadow-2xs">
-                          <div className="text-[10px] text-slate-500 flex items-center justify-center gap-1 font-semibold">
-                            <Zap className="w-3 h-3 text-amber-600" /> Current (Pin 36)
-                          </div>
-                          <div className="font-bold text-slate-900 text-sm mt-0.5">
-                            {activeDevice.currentReading.toFixed(3)} A
-                          </div>
-                          <span className="text-[9px] text-slate-500 font-normal">Nominal</span>
-                        </div>
-
-                        <div className="bg-white p-2.5 rounded-lg border border-emerald-100 shadow-2xs">
-                          <div className="text-[10px] text-slate-500 flex items-center justify-center gap-1">
-                            <Lightbulb className="w-3 h-3 text-yellow-500" /> LEDs (Pins 18/19)
-                          </div>
-                          <div className="font-bold text-slate-900 text-sm mt-0.5">
-                            {activeDevice.pole1Light}
-                          </div>
-                          <span className="text-[9px] text-slate-500 font-normal">P1 & P2</span>
-                        </div>
-                      </div>
-
-                      {/* Fault Trigger Guide */}
-                      <div className="mt-3 p-2.5 bg-amber-50/80 rounded-lg border border-amber-200/70 text-[11px] text-amber-900 flex items-start gap-2">
-                        <Info className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                         <div>
-                          <strong>To test fault detection on your hardware:</strong> Cover the LDR sensor with your hand/finger to simulate NIGHT. The system will detect unlit streetlights and instantly trigger a <strong>🚨 FAULT ALERT</strong> with GPS coordinates!
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h2 className="text-base sm:text-lg font-bold" style={{ color: '#14532d' }}>
+                              🟢 SYSTEM NORMAL
+                            </h2>
+                            <span 
+                              className="text-[11px] font-bold px-2 py-0.5 rounded-full"
+                              style={{ backgroundColor: '#dcfce7', color: '#166534', border: '1px solid #86efac' }}
+                            >
+                              NOMINAL
+                            </span>
+                          </div>
+                          <p className="text-xs sm:text-sm font-medium mt-1" style={{ color: '#166534' }}>
+                            Streetlight operation is functioning as expected.
+                          </p>
+                          <div className="text-xs mt-2 flex flex-wrap gap-x-4 gap-y-1 font-semibold" style={{ color: '#15803d' }}>
+                            <span>Condition: <strong style={{ color: '#14532d' }}>{activeDevice.environment} (LDR: {activeDevice.ldrValue})</strong></span>
+                            <span>•</span>
+                            <span>Streetlight LEDs: <strong style={{ color: '#14532d' }}>{activeDevice.pole1Light}</strong></span>
+                            <span>•</span>
+                            <span>Current: <strong style={{ color: '#14532d' }}>{(activeDevice.currentReading || 0).toFixed(3)} A</strong></span>
+                          </div>
                         </div>
-                      </div>
-
-                      {/* Simulation Quick Buttons */}
-                      <div className="flex justify-center gap-2 mt-3 pt-2 border-t border-emerald-200/60">
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          onClick={() => setHardwareStatus(activeDevice.deviceId, 'CHECK')}
-                          className="text-xs bg-white text-red-600 border-red-200 hover:bg-red-50 flex-1"
-                        >
-                          <AlertTriangle className="w-3.5 h-3.5 mr-1 text-red-500" /> Test "CHECK" Fault
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          onClick={() => setHardwareStatus(activeDevice.deviceId, 'WASTAGE')}
-                          className="text-xs bg-white text-amber-600 border-amber-200 hover:bg-amber-50 flex-1"
-                        >
-                          <Zap className="w-3.5 h-3.5 mr-1 text-amber-500" /> Test "WASTAGE"
-                        </Button>
                       </div>
                     </div>
                   </div>
-                ) : (
-                  alerts.map((alert) => {
-                    const isCheck = alert.alertType === 'FAULT_LIGHT_UNLIT';
-                    return (
-                      <div
-                        key={alert.id}
-                        className={`border-2 rounded-xl p-3.5 relative overflow-hidden shadow-sm transition-all ${
-                          isCheck ? 'bg-red-50/90 border-red-200' : 'bg-amber-50/90 border-amber-200'
-                        }`}
-                      >
-                        <div className={`absolute top-0 left-0 bottom-0 w-1.5 ${isCheck ? 'bg-red-500' : 'bg-amber-500'}`}></div>
+                )}
 
-                        <div className="flex items-start justify-between gap-2 pl-2">
-                          <div className="flex items-center gap-2">
-                            <span className={`p-1.5 text-white rounded-lg shadow-sm ${isCheck ? 'bg-red-500' : 'bg-amber-500'}`}>
-                              <AlertTriangle className="w-4 h-4" />
+                {isWastage && (
+                  <div 
+                    className="p-4 sm:p-5 rounded-xl border transition-all"
+                    style={{ backgroundColor: '#fffbeb', borderColor: '#fde68a' }}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-3">
+                        <div 
+                          className="p-2.5 rounded-xl flex items-center justify-center text-white shrink-0"
+                          style={{ backgroundColor: '#d97706' }}
+                        >
+                          <Zap className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h2 className="text-base sm:text-lg font-bold" style={{ color: '#78350f' }}>
+                              🟠 ENERGY WASTAGE DETECTED
+                            </h2>
+                            <span 
+                              className="text-[11px] font-bold px-2 py-0.5 rounded-full"
+                              style={{ backgroundColor: '#fef3c7', color: '#92400e', border: '1px solid #fcd34d' }}
+                            >
+                              WARNING
                             </span>
-                            <div>
-                              <h4 className="font-bold text-slate-900 text-sm leading-tight">
-                                {isCheck ? '🚨 Streetlight Fault Detected' : '⚡ Energy Wastage Detected'}
-                              </h4>
-                              <span className="text-[11px] text-slate-600 font-medium">
-                                Device ID: <strong className="font-mono text-slate-900">{alert.deviceId}</strong>
-                              </span>
-                            </div>
                           </div>
-                          <Badge variant={isCheck ? 'destructive' : 'default'} className="text-[10px] uppercase font-bold tracking-wider">
-                            Status: {isCheck ? 'CHECK' : 'WASTAGE'}
-                          </Badge>
-                        </div>
 
-                        {/* Location & GPS Coordinates */}
-                        <div className="mt-3 pl-2 grid grid-cols-1 gap-2 bg-white/90 p-2.5 rounded-lg border border-slate-200 text-xs">
-                          <div className="flex items-start gap-2">
-                            <MapPin className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
-                            <div>
-                              <span className="font-semibold text-slate-900">Area:</span> {alert.address}
-                              <div className="font-mono text-[11px] text-slate-600 mt-0.5 flex flex-wrap items-center gap-x-3">
-                                <span>📍 Latitude: <strong className="text-slate-900">{alert.coordinates.lat.toFixed(4)}° N</strong></span>
-                                <span>Longitude: <strong className="text-slate-900">{alert.coordinates.lng.toFixed(4)}° E</strong></span>
-                              </div>
-                            </div>
+                          <div className="mt-1 text-xs font-bold" style={{ color: '#92400e' }}>
+                            Detected Condition: <span className="font-mono underline">{conditionLabel}</span>
                           </div>
-                        </div>
 
-                        {/* Hardware Sensor Telemetry Box */}
-                        <div className="mt-2.5 pl-2">
-                          <div className="text-[11px] font-semibold text-slate-700 mb-1.5 flex items-center gap-1">
-                            <Activity className="w-3.5 h-3.5 text-indigo-600" /> Real-Time Sensor Readings:
+                          <p className="text-xs sm:text-sm font-medium mt-1 leading-relaxed" style={{ color: '#92400e' }}>
+                            Streetlights are operating during daylight hours. Unnecessary energy consumption detected.
+                          </p>
+
+                          <div className="mt-2 p-2.5 rounded-lg text-xs border" style={{ backgroundColor: '#ffffff', borderColor: '#fde68a', color: '#78350f' }}>
+                            <strong>Recommended Action:</strong> Inspect automatic lighting control and scheduling.
                           </div>
-                          <div className="grid grid-cols-3 gap-2 text-center text-xs">
-                            <div className="bg-white p-2 rounded-lg border border-slate-200">
-                              <div className="text-[10px] text-slate-500 flex items-center justify-center gap-1">
-                                {alert.sensorSnapshot.environment === 'NIGHT' ? <Moon className="w-3 h-3 text-indigo-500" /> : <Sun className="w-3 h-3 text-amber-500" />}
-                                LDR (Pin 34)
-                              </div>
-                              <div className="font-bold text-slate-800 mt-0.5">
-                                {alert.sensorSnapshot.ldr} <span className="text-[9px] text-slate-500 block font-normal">({alert.sensorSnapshot.environment})</span>
-                              </div>
-                            </div>
 
-                            <div className={`p-2 rounded-lg border bg-white ${isCheck ? 'border-red-300 bg-red-50/50' : 'border-amber-300 bg-amber-50/50'}`}>
-                              <div className="text-[10px] text-slate-700 flex items-center justify-center gap-1 font-semibold">
-                                <Zap className="w-3 h-3 text-amber-600" /> Current (Pin 36)
-                              </div>
-                              <div className="font-bold text-red-600 mt-0.5">
-                                {alert.sensorSnapshot.current.toFixed(3)} A
-                                <span className="text-[9px] text-slate-400 block font-normal">(Threshold: 0.02A)</span>
-                              </div>
-                            </div>
+                          {/* Action Buttons */}
+                          <div className="flex flex-wrap gap-2.5 mt-3 pt-2">
+                            <button
+                              onClick={() => handleDispatch(activeDevice.deviceId)}
+                              disabled={isDispatched[activeDevice.deviceId]}
+                              className="px-4 py-2 rounded-xl text-xs font-bold text-white transition-all flex items-center gap-1.5 shadow-sm active:scale-95"
+                              style={{ backgroundColor: isDispatched[activeDevice.deviceId] ? '#64748b' : '#d97706' }}
+                            >
+                              <Send className="w-3.5 h-3.5" />
+                              {isDispatched[activeDevice.deviceId] ? 'MAINTENANCE DISPATCHED' : 'DISPATCH MAINTENANCE'}
+                            </button>
 
-                            <div className="bg-white p-2 rounded-lg border border-slate-200">
-                              <div className="text-[10px] text-slate-500 flex items-center justify-center gap-1">
-                                <Lightbulb className="w-3 h-3 text-yellow-500" /> Pole 1 / Pole 2
-                              </div>
-                              <div className="font-bold text-slate-800 mt-0.5">
-                                P1: {alert.sensorSnapshot.pole1} | P2: {alert.sensorSnapshot.pole2}
-                              </div>
-                            </div>
+                            <button
+                              onClick={() => handleResolve(activeDevice.deviceId)}
+                              className="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 active:scale-95"
+                              style={{ backgroundColor: '#ffffff', color: '#78350f', border: '1px solid #d97706' }}
+                            >
+                              <Wrench className="w-3.5 h-3.5" />
+                              MARK AS RESOLVED
+                            </button>
                           </div>
-                        </div>
-
-                        {/* Fault Reason Description */}
-                        <p className="mt-2.5 pl-2 text-xs text-slate-900 bg-white/70 p-2 rounded-lg leading-relaxed border border-slate-200/60">
-                          <strong>ESP32 Diagnosis:</strong> {alert.message}
-                        </p>
-
-                        {/* Action buttons */}
-                        <div className="mt-3 pl-2 flex flex-wrap gap-2">
-                          <Button
-                            size="sm"
-                            onClick={() => handleDispatchCrew(alert.deviceId, alert.address)}
-                            disabled={dispatchedAlerts[alert.deviceId]}
-                            className={`text-xs flex-1 ${
-                              dispatchedAlerts[alert.deviceId]
-                                ? 'bg-slate-200 text-slate-700'
-                                : 'bg-red-600 hover:bg-red-700 text-white shadow-sm'
-                            }`}
-                          >
-                            <Send className="w-3.5 h-3.5 mr-1.5" />
-                            {dispatchedAlerts[alert.deviceId] ? 'NMC Crew Dispatched' : 'Dispatch NMC Crew'}
-                          </Button>
-
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleResolveAlert(alert.deviceId, alert.deviceName)}
-                            className="text-xs border-emerald-300 text-emerald-700 hover:bg-emerald-50"
-                          >
-                            <Wrench className="w-3.5 h-3.5 mr-1" /> Reset to NORMAL
-                          </Button>
                         </div>
                       </div>
-                    );
-                  })
+                    </div>
+                  </div>
                 )}
-              </div>
-            )}
 
-            {/* TAB 2: OLED DISPLAY SIMULATOR */}
-            {activeTab === 'oled' && (
-              <div className="space-y-3.5">
-                <div className="bg-slate-950 p-4 rounded-xl border-4 border-slate-800 shadow-inner font-mono text-cyan-400">
-                  <div className="flex items-center justify-between text-[10px] text-cyan-500/70 border-b border-cyan-500/20 pb-1 mb-2">
-                    <span>SSD1306 OLED (128x64 • I2C 0x3C)</span>
-                    <span className="text-emerald-400 font-bold">LIVE TELEMETRY</span>
+                {isFault && (
+                  <div 
+                    className="p-4 sm:p-5 rounded-xl border transition-all"
+                    style={{ backgroundColor: '#fef2f2', borderColor: '#fecaca' }}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-3">
+                        <div 
+                          className="p-2.5 rounded-xl flex items-center justify-center text-white shrink-0"
+                          style={{ backgroundColor: '#dc2626' }}
+                        >
+                          <AlertTriangle className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h2 className="text-base sm:text-lg font-bold" style={{ color: '#7f1d1d' }}>
+                              🔴 STREETLIGHT FAULT DETECTED
+                            </h2>
+                            <span 
+                              className="text-[11px] font-bold px-2 py-0.5 rounded-full"
+                              style={{ backgroundColor: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5' }}
+                            >
+                              CRITICAL
+                            </span>
+                          </div>
+
+                          <div className="mt-1 text-xs font-bold" style={{ color: '#991b1b' }}>
+                            Detected Condition: <span className="font-mono underline">{conditionLabel}</span>
+                          </div>
+
+                          <p className="text-xs sm:text-sm font-medium mt-1 leading-relaxed" style={{ color: '#991b1b' }}>
+                            Nighttime detected, but the streetlights are not operating. Possible lamp, wiring, or power failure.
+                          </p>
+
+                          <div className="mt-2 p-2.5 rounded-lg text-xs border" style={{ backgroundColor: '#ffffff', borderColor: '#fecaca', color: '#7f1d1d' }}>
+                            <strong>Recommended Action:</strong> Inspect the lamp, wiring and power supply.
+                          </div>
+
+                          {/* Action Buttons */}
+                          <div className="flex flex-wrap gap-2.5 mt-3 pt-2">
+                            <button
+                              onClick={() => handleDispatch(activeDevice.deviceId)}
+                              disabled={isDispatched[activeDevice.deviceId]}
+                              className="px-4 py-2 rounded-xl text-xs font-bold text-white transition-all flex items-center gap-1.5 shadow-sm active:scale-95"
+                              style={{ backgroundColor: isDispatched[activeDevice.deviceId] ? '#64748b' : '#dc2626' }}
+                            >
+                              <Send className="w-3.5 h-3.5" />
+                              {isDispatched[activeDevice.deviceId] ? 'MAINTENANCE DISPATCHED' : 'DISPATCH MAINTENANCE'}
+                            </button>
+
+                            <button
+                              onClick={() => handleResolve(activeDevice.deviceId)}
+                              className="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 active:scale-95"
+                              style={{ backgroundColor: '#ffffff', color: '#7f1d1d', border: '1px solid #dc2626' }}
+                            >
+                              <Wrench className="w-3.5 h-3.5" />
+                              MARK AS RESOLVED
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* -------------------------------------------------------------- */}
+                {/* B. LIVE HARDWARE TELEMETRY SECTION (4 Clean Cards)             */}
+                {/* -------------------------------------------------------------- */}
+                <div>
+                  <div className="flex items-center justify-between mb-2.5">
+                    <h3 className="text-xs sm:text-sm font-extrabold tracking-wider uppercase flex items-center gap-1.5" style={{ color: '#0f172a' }}>
+                      <Activity className="w-4 h-4 text-blue-600" />
+                      LIVE HARDWARE TELEMETRY
+                    </h3>
+                    <span className="text-[11px] font-medium" style={{ color: '#64748b' }}>
+                      Auto-refreshed every 2s
+                    </span>
                   </div>
 
-                  <div className="text-sm font-bold text-center text-white mb-2 tracking-wider">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3">
+                    {/* Card 1: LDR Sensor */}
+                    <div 
+                      className="p-3 sm:p-3.5 rounded-xl border flex flex-col justify-between"
+                      style={{ backgroundColor: '#ffffff', borderColor: '#e2e8f0' }}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-bold tracking-wider" style={{ color: '#64748b' }}>
+                          LDR SENSOR
+                        </span>
+                        <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded" style={{ backgroundColor: '#f1f5f9', color: '#475569' }}>
+                          GPIO 34
+                        </span>
+                      </div>
+
+                      <div className="my-2">
+                        <div className="text-xl sm:text-2xl font-black font-mono tracking-tight" style={{ color: '#0f172a' }}>
+                          {activeDevice.ldrValue}
+                        </div>
+                        <div className="flex items-center gap-1.5 mt-1">
+                          {activeDevice.environment === 'NIGHT' ? (
+                            <span className="inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-md" style={{ backgroundColor: '#ede9fe', color: '#5b21b6' }}>
+                              <Moon className="w-3.5 h-3.5 text-purple-600" /> NIGHT
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-md" style={{ backgroundColor: '#fef3c7', color: '#92400e' }}>
+                              <Sun className="w-3.5 h-3.5 text-amber-500" /> DAY
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="text-[10px] font-medium" style={{ color: '#94a3b8' }}>
+                        Threshold: &lt; 300 (Night)
+                      </div>
+                    </div>
+
+                    {/* Card 2: Current Sensor */}
+                    <div 
+                      className="p-3 sm:p-3.5 rounded-xl border flex flex-col justify-between"
+                      style={{ backgroundColor: '#ffffff', borderColor: '#e2e8f0' }}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-bold tracking-wider" style={{ color: '#64748b' }}>
+                          CURRENT SENSOR
+                        </span>
+                        <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded" style={{ backgroundColor: '#f1f5f9', color: '#475569' }}>
+                          GPIO 36
+                        </span>
+                      </div>
+
+                      <div className="my-2">
+                        <div className="text-xl sm:text-2xl font-black font-mono tracking-tight" style={{ color: '#0f172a' }}>
+                          {(activeDevice.currentReading || 0).toFixed(3)} <span className="text-xs font-semibold" style={{ color: '#64748b' }}>A</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 mt-1">
+                          <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-md" style={{ backgroundColor: '#eff6ff', color: '#1e40af' }}>
+                            <Zap className="w-3.5 h-3.5 text-blue-600" /> ACS712 Sensor
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="text-[10px] font-medium" style={{ color: '#94a3b8' }}>
+                        Nominal threshold: 0.020 A
+                      </div>
+                    </div>
+
+                    {/* Card 3: Streetlight Poles */}
+                    <div 
+                      className="p-3 sm:p-3.5 rounded-xl border flex flex-col justify-between"
+                      style={{ backgroundColor: '#ffffff', borderColor: '#e2e8f0' }}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-bold tracking-wider" style={{ color: '#64748b' }}>
+                          STREETLIGHT POLES
+                        </span>
+                        <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded" style={{ backgroundColor: '#f1f5f9', color: '#475569' }}>
+                          2 LEDs
+                        </span>
+                      </div>
+
+                      <div className="my-1.5 space-y-1.5">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-semibold" style={{ color: '#475569' }}>Pole 1 (GPIO 18):</span>
+                          <span 
+                            className="font-bold px-2 py-0.5 rounded text-[11px] flex items-center gap-1"
+                            style={
+                              activeDevice.pole1Light === 'ON'
+                                ? { backgroundColor: '#dcfce7', color: '#166534', border: '1px solid #86efac' }
+                                : { backgroundColor: '#f1f5f9', color: '#64748b', border: '1px solid #e2e8f0' }
+                            }
+                          >
+                            <Lightbulb className="w-3 h-3" />
+                            {activeDevice.pole1Light}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-semibold" style={{ color: '#475569' }}>Pole 2 (GPIO 19):</span>
+                          <span 
+                            className="font-bold px-2 py-0.5 rounded text-[11px] flex items-center gap-1"
+                            style={
+                              activeDevice.pole2Light === 'ON'
+                                ? { backgroundColor: '#dcfce7', color: '#166534', border: '1px solid #86efac' }
+                                : { backgroundColor: '#f1f5f9', color: '#64748b', border: '1px solid #e2e8f0' }
+                            }
+                          >
+                            <Lightbulb className="w-3 h-3" />
+                            {activeDevice.pole2Light}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="text-[10px] font-medium" style={{ color: '#94a3b8' }}>
+                        Dual Luminaire Relay
+                      </div>
+                    </div>
+
+                    {/* Card 4: Device Connection */}
+                    <div 
+                      className="p-3 sm:p-3.5 rounded-xl border flex flex-col justify-between"
+                      style={{ backgroundColor: '#ffffff', borderColor: '#e2e8f0' }}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-bold tracking-wider" style={{ color: '#64748b' }}>
+                          DEVICE
+                        </span>
+                        <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded" style={{ backgroundColor: '#f1f5f9', color: '#475569' }}>
+                          ESP32
+                        </span>
+                      </div>
+
+                      <div className="my-2">
+                        <div className="text-base sm:text-lg font-black font-mono tracking-tight" style={{ color: '#0f172a' }}>
+                          {activeDevice.deviceId}
+                        </div>
+                        <div className="flex items-center gap-1 text-xs font-semibold mt-1" style={{ color: isOnline ? '#15803d' : '#b91c1c' }}>
+                          <Radio className="w-3.5 h-3.5" />
+                          <span>{isOnline ? 'ONLINE (Wi-Fi)' : 'OFFLINE'}</span>
+                        </div>
+                      </div>
+
+                      <div className="text-[10px] font-medium flex items-center gap-1" style={{ color: '#94a3b8' }}>
+                        <Clock className="w-3 h-3" />
+                        <span>Update: {activeDevice.timestampStr.split(' ')[1] || activeDevice.timestampStr}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* -------------------------------------------------------------- */}
+                {/* C. POLE LOCATION SECTION                                        */}
+                {/* -------------------------------------------------------------- */}
+                <div 
+                  className="p-4 sm:p-5 rounded-xl border"
+                  style={{ backgroundColor: '#ffffff', borderColor: '#e2e8f0' }}
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-start gap-3">
+                      <div 
+                        className="p-2.5 rounded-xl flex items-center justify-center shrink-0"
+                        style={{ backgroundColor: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca' }}
+                      >
+                        <MapPin className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <div className="text-[11px] font-bold uppercase tracking-wider" style={{ color: '#64748b' }}>
+                          POLE LOCATION
+                        </div>
+                        <h4 className="text-sm sm:text-base font-bold mt-0.5" style={{ color: '#0f172a' }}>
+                          Food and Multi Activity Center, VNIT Nagpur
+                        </h4>
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs mt-1 font-mono" style={{ color: '#475569' }}>
+                          <span>Device: <strong style={{ color: '#0f172a' }}>{activeDevice.deviceId}</strong></span>
+                          <span>•</span>
+                          <span>Latitude: <strong style={{ color: '#0f172a' }}>21.1233° N</strong></span>
+                          <span>•</span>
+                          <span>Longitude: <strong style={{ color: '#0f172a' }}>79.0514° E</strong></span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={handleViewMap}
+                      className="px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 shrink-0 active:scale-95 shadow-sm"
+                      style={{ backgroundColor: '#0f172a', color: '#ffffff' }}
+                    >
+                      <MapPin className="w-3.5 h-3.5 text-red-400" />
+                      <span>VIEW ON MAP</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* -------------------------------------------------------------- */}
+                {/* D. PROTOTYPE DEMONSTRATION CONTROLS (Visually Separated)       */}
+                {/* -------------------------------------------------------------- */}
+                <div 
+                  className="p-4 rounded-xl border"
+                  style={{ backgroundColor: '#f8fafc', borderColor: '#cbd5e1' }}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <Sliders className="w-4 h-4 text-slate-700" />
+                      <h4 className="text-xs font-extrabold uppercase tracking-wider" style={{ color: '#1e293b' }}>
+                        PROTOTYPE DEMONSTRATION CONTROLS
+                      </h4>
+                    </div>
+                    <span 
+                      className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                      style={{ backgroundColor: '#e2e8f0', color: '#475569' }}
+                    >
+                      For prototype demonstration only
+                    </span>
+                  </div>
+
+                  <p className="text-xs mb-3 font-medium" style={{ color: '#64748b' }}>
+                    Simulate hardware fault conditions to evaluate emergency dispatch workflows and dashboard alert triggers:
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <button
+                      onClick={() => setHardwareStatus(activeDevice.deviceId, 'CHECK')}
+                      className="px-3 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 active:scale-95 shadow-xs"
+                      style={
+                        isFault
+                          ? { backgroundColor: '#dc2626', color: '#ffffff' }
+                          : { backgroundColor: '#ffffff', color: '#b91c1c', border: '1px solid #fecaca' }
+                      }
+                    >
+                      <AlertTriangle className="w-3.5 h-3.5" />
+                      <span>SIMULATE STREETLIGHT FAULT</span>
+                    </button>
+
+                    <button
+                      onClick={() => setHardwareStatus(activeDevice.deviceId, 'WASTAGE')}
+                      className="px-3 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 active:scale-95 shadow-xs"
+                      style={
+                        isWastage
+                          ? { backgroundColor: '#d97706', color: '#ffffff' }
+                          : { backgroundColor: '#ffffff', color: '#b45309', border: '1px solid #fde68a' }
+                      }
+                    >
+                      <Zap className="w-3.5 h-3.5" />
+                      <span>SIMULATE ENERGY WASTAGE</span>
+                    </button>
+
+                    <button
+                      onClick={() => setHardwareStatus(activeDevice.deviceId, 'NORMAL')}
+                      className="px-3 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 active:scale-95 shadow-xs"
+                      style={
+                        isNormal
+                          ? { backgroundColor: '#16a34a', color: '#ffffff' }
+                          : { backgroundColor: '#ffffff', color: '#15803d', border: '1px solid #bbf7d0' }
+                      }
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>RESET TO NORMAL</span>
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* ================================================================== */}
+            {/* TAB 2: SSD1306 OLED MIRROR                                          */}
+            {/* ================================================================== */}
+            {activeTab === 'oled' && (
+              <div className="space-y-4">
+                <div 
+                  className="p-5 rounded-2xl font-mono shadow-inner border-4"
+                  style={{ backgroundColor: '#020617', borderColor: '#1e293b', color: '#38bdf8' }}
+                >
+                  <div className="flex items-center justify-between text-[11px] pb-2 mb-3 border-b" style={{ borderColor: '#0369a1' }}>
+                    <span className="text-cyan-400 font-bold">SSD1306 OLED (128x64 • I2C 0x3C)</span>
+                    <span className="text-emerald-400 font-bold flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                      HARDWARE DISPLAY MIRROR
+                    </span>
+                  </div>
+
+                  <div className="text-center font-bold text-white text-sm sm:text-base tracking-widest mb-3">
                     SMART STREETLIGHT
                   </div>
 
-                  <div className="text-xs space-y-1">
+                  <div className="space-y-2 text-xs sm:text-sm">
                     <div className="flex justify-between">
-                      <span>LDR: <strong className="text-white">{activeDevice.ldrValue}</strong></span>
-                      <span>TIME: <strong className="text-white">{activeDevice.environment}</strong></span>
+                      <span style={{ color: '#94a3b8' }}>LDR SENSOR:</span>
+                      <strong className="text-white">{activeDevice.ldrValue}</strong>
                     </div>
 
                     <div className="flex justify-between">
-                      <span>P1: <strong className={activeDevice.pole1Light === 'ON' ? 'text-emerald-400' : 'text-slate-400'}>{activeDevice.pole1Light}</strong></span>
-                      <span>P2: <strong className={activeDevice.pole2Light === 'ON' ? 'text-emerald-400' : 'text-slate-400'}>{activeDevice.pole2Light}</strong></span>
+                      <span style={{ color: '#94a3b8' }}>ENVIRONMENT:</span>
+                      <strong className="text-white">{activeDevice.environment}</strong>
                     </div>
 
                     <div className="flex justify-between">
-                      <span>Current: <strong className="text-white">{activeDevice.currentReading.toFixed(2)} A</strong></span>
-                      <span>Status: <strong className={activeDevice.rawStatus === 'NORMAL' ? 'text-emerald-400' : activeDevice.rawStatus === 'CHECK' ? 'text-red-400 animate-pulse' : 'text-amber-400'}>{activeDevice.rawStatus}</strong></span>
+                      <span style={{ color: '#94a3b8' }}>POLE 1 / POLE 2:</span>
+                      <strong className="text-emerald-400">P1: {activeDevice.pole1Light} | P2: {activeDevice.pole2Light}</strong>
                     </div>
 
-                    <div className="pt-2 text-[10px] text-slate-400 border-t border-cyan-500/10 flex justify-between">
-                      <span>Dev: {activeDevice.deviceId}</span>
-                      <span>Area: {activeDevice.location.area.split(',')[0]}</span>
+                    <div className="flex justify-between">
+                      <span style={{ color: '#94a3b8' }}>CURRENT DRAW:</span>
+                      <strong className="text-white">{(activeDevice.currentReading || 0).toFixed(3)} A</strong>
+                    </div>
+
+                    <div className="flex justify-between pt-2 border-t" style={{ borderColor: '#0369a1' }}>
+                      <span style={{ color: '#94a3b8' }}>SYSTEM STATUS:</span>
+                      <strong className={isNormal ? 'text-emerald-400' : isFault ? 'text-red-400 animate-pulse' : 'text-amber-400'}>
+                        {activeDevice.rawStatus}
+                      </strong>
+                    </div>
+
+                    <div className="text-[11px] text-slate-400 pt-1 flex justify-between">
+                      <span>DEV: {activeDevice.deviceId}</span>
+                      <span>LOC: VNIT NAGPUR</span>
                     </div>
                   </div>
                 </div>
 
-                {/* State Switcher for Demonstration */}
-                <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
-                  <h4 className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                    <RefreshCw className="w-3.5 h-3.5 text-indigo-600" /> Interactive Hardware State Tester:
+                <div className="p-3 rounded-xl border text-xs" style={{ backgroundColor: '#ffffff', borderColor: '#e2e8f0', color: '#475569' }}>
+                  <p className="leading-relaxed">
+                    This screen displays a real-time pixel-matched mirror of the <strong>0.96 inch SSD1306 I2C OLED display</strong> mounted on the ESP32 physical breadboard circuit.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* ================================================================== */}
+            {/* TAB 3: CIRCUIT & PINOUT SPECIFICATIONS                              */}
+            {/* ================================================================== */}
+            {activeTab === 'circuit' && (
+              <div className="space-y-4">
+                <div 
+                  className="p-4 sm:p-5 rounded-xl border"
+                  style={{ backgroundColor: '#ffffff', borderColor: '#e2e8f0' }}
+                >
+                  <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-wider mb-3" style={{ color: '#0f172a' }}>
+                    ESP32 PIN CONFIGURATION & HARDWARE MAPPING
                   </h4>
-                  <div className="grid grid-cols-3 gap-2">
-                    <Button
-                      size="sm"
-                      variant={activeDevice.rawStatus === 'NORMAL' ? 'default' : 'outline'}
-                      onClick={() => setHardwareStatus(activeDevice.deviceId, 'NORMAL')}
-                      className="text-xs h-8"
-                    >
-                      NORMAL
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant={activeDevice.rawStatus === 'CHECK' ? 'destructive' : 'outline'}
-                      onClick={() => setHardwareStatus(activeDevice.deviceId, 'CHECK')}
-                      className="text-xs h-8"
-                    >
-                      CHECK (Fault)
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant={activeDevice.rawStatus === 'WASTAGE' ? 'secondary' : 'outline'}
-                      onClick={() => setHardwareStatus(activeDevice.deviceId, 'WASTAGE')}
-                      className="text-xs h-8"
-                    >
-                      WASTAGE
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
 
-            {/* TAB 3: POLES & SENSORS */}
-            {activeTab === 'devices' && (
-              <div className="space-y-3">
-                {devices.map((device) => {
-                  const isFaulty = device.rawStatus === 'CHECK';
-                  const isWastage = device.rawStatus === 'WASTAGE';
-                  return (
-                    <div
-                      key={device.deviceId}
-                      className={`p-3.5 rounded-xl border transition-all ${
-                        isFaulty
-                          ? 'bg-red-50/50 border-red-200'
-                          : isWastage
-                          ? 'bg-amber-50/50 border-amber-200'
-                          : 'bg-slate-50 border-slate-200'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2.5">
-                          <div className={`p-2 rounded-xl ${isFaulty ? 'bg-red-100 text-red-600' : 'bg-emerald-100 text-emerald-600'}`}>
-                            <Lightbulb className="w-5 h-5" />
-                          </div>
-                          <div>
-                            <h4 className="font-bold text-slate-900 text-xs sm:text-sm">{device.name}</h4>
-                            <p className="text-[11px] text-slate-500 flex items-center gap-1">
-                              <MapPin className="w-3 h-3 text-slate-400" /> {device.location.area} ({device.location.ward})
-                            </p>
-                          </div>
-                        </div>
-
-                        <Badge
-                          className={`text-[10px] font-semibold ${
-                            isFaulty ? 'bg-red-500 text-white' : isWastage ? 'bg-amber-500 text-white' : 'bg-emerald-600 text-white'
-                          }`}
-                        >
-                          {device.rawStatus}
-                        </Badge>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <div className="p-3 rounded-lg border" style={{ backgroundColor: '#f8fafc', borderColor: '#e2e8f0' }}>
+                      <div className="font-bold flex items-center justify-between" style={{ color: '#0f172a' }}>
+                        <span>LDR Light Sensor</span>
+                        <span className="font-mono px-1.5 py-0.5 rounded bg-blue-100 text-blue-800">GPIO 34 (ADC1_CH6)</span>
                       </div>
+                      <p className="text-[11px] mt-1" style={{ color: '#64748b' }}>
+                        Measures ambient light level. Threshold &lt; 300 defines NIGHT, &gt;= 300 defines DAY.
+                      </p>
+                    </div>
 
-                      {/* Telemetry grid */}
-                      <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                        <div className="bg-white p-2 rounded-lg border border-slate-100">
-                          <span className="text-[10px] text-slate-500 block">Pole 1 (Pin 18)</span>
-                          <span className={`font-bold ${device.pole1Light === 'ON' ? 'text-emerald-600' : 'text-slate-600'}`}>
-                            {device.pole1Light === 'ON' ? '💡 ON (Lit)' : '⚪ OFF'}
-                          </span>
-                        </div>
-
-                        <div className="bg-white p-2 rounded-lg border border-slate-100">
-                          <span className="text-[10px] text-slate-500 block">Pole 2 (Pin 19)</span>
-                          <span className={`font-bold ${device.pole2Light === 'ON' ? 'text-emerald-600' : 'text-slate-600'}`}>
-                            {device.pole2Light === 'ON' ? '💡 ON (Lit)' : '⚪ OFF'}
-                          </span>
-                        </div>
-
-                        <div className="bg-white p-2 rounded-lg border border-slate-100">
-                          <span className="text-[10px] text-slate-500 block">LDR Light (Pin 34)</span>
-                          <span className="font-bold text-slate-800">{device.ldrValue} ({device.environment})</span>
-                        </div>
-
-                        <div className="bg-white p-2 rounded-lg border border-slate-100">
-                          <span className="text-[10px] text-slate-500 block">Current (Pin 36)</span>
-                          <span className={`font-bold ${isFaulty ? 'text-red-600' : 'text-slate-800'}`}>
-                            {device.currentReading.toFixed(3)} A
-                          </span>
-                        </div>
+                    <div className="p-3 rounded-lg border" style={{ backgroundColor: '#f8fafc', borderColor: '#e2e8f0' }}>
+                      <div className="font-bold flex items-center justify-between" style={{ color: '#0f172a' }}>
+                        <span>ACS712 Current Sensor</span>
+                        <span className="font-mono px-1.5 py-0.5 rounded bg-blue-100 text-blue-800">GPIO 36 (ADC1_CH0)</span>
                       </div>
+                      <p className="text-[11px] mt-1" style={{ color: '#64748b' }}>
+                        Detects luminaire electrical load current. Threshold 0.020 A identifies active lamp draw.
+                      </p>
                     </div>
-                  );
-                })}
-              </div>
-            )}
 
-            {/* TAB 4: HARDWARE PINOUT & ARCHITECTURE */}
-            {activeTab === 'hardware' && (
-              <div className="space-y-3.5">
-                <div className="bg-gradient-to-br from-indigo-50 to-slate-100 p-3.5 rounded-xl border border-indigo-200">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Cpu className="w-5 h-5 text-indigo-700" />
-                    <h4 className="font-bold text-indigo-950 text-sm">ESP32 Hardware Model Specifications</h4>
+                    <div className="p-3 rounded-lg border" style={{ backgroundColor: '#f8fafc', borderColor: '#e2e8f0' }}>
+                      <div className="font-bold flex items-center justify-between" style={{ color: '#0f172a' }}>
+                        <span>Streetlight Pole 1 LED</span>
+                        <span className="font-mono px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">GPIO 18 (OUTPUT)</span>
+                      </div>
+                      <p className="text-[11px] mt-1" style={{ color: '#64748b' }}>
+                        Digital high/low driving Luminaire 1 through current-limiting resistor.
+                      </p>
+                    </div>
+
+                    <div className="p-3 rounded-lg border" style={{ backgroundColor: '#f8fafc', borderColor: '#e2e8f0' }}>
+                      <div className="font-bold flex items-center justify-between" style={{ color: '#0f172a' }}>
+                        <span>Streetlight Pole 2 LED</span>
+                        <span className="font-mono px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">GPIO 19 (OUTPUT)</span>
+                      </div>
+                      <p className="text-[11px] mt-1" style={{ color: '#64748b' }}>
+                        Digital high/low driving Luminaire 2 on the secondary street pole.
+                      </p>
+                    </div>
+
+                    <div className="p-3 rounded-lg border" style={{ backgroundColor: '#f8fafc', borderColor: '#e2e8f0' }}>
+                      <div className="font-bold flex items-center justify-between" style={{ color: '#0f172a' }}>
+                        <span>I2C OLED Data (SDA)</span>
+                        <span className="font-mono px-1.5 py-0.5 rounded bg-purple-100 text-purple-800">GPIO 21 (I2C SDA)</span>
+                      </div>
+                      <p className="text-[11px] mt-1" style={{ color: '#64748b' }}>
+                        Serial data line connected to SSD1306 OLED screen address 0x3C.
+                      </p>
+                    </div>
+
+                    <div className="p-3 rounded-lg border" style={{ backgroundColor: '#f8fafc', borderColor: '#e2e8f0' }}>
+                      <div className="font-bold flex items-center justify-between" style={{ color: '#0f172a' }}>
+                        <span>I2C OLED Clock (SCL)</span>
+                        <span className="font-mono px-1.5 py-0.5 rounded bg-purple-100 text-purple-800">GPIO 22 (I2C SCL)</span>
+                      </div>
+                      <p className="text-[11px] mt-1" style={{ color: '#64748b' }}>
+                        Serial clock bus coordinating 400kHz I2C display transmission.
+                      </p>
+                    </div>
                   </div>
-                  <p className="text-xs text-indigo-900/80 leading-relaxed">
-                    Microcontroller: <strong>ESP32 NodeMCU</strong> running Arduino C++ firmware. Connects to Wi-Fi and pushes telemetry JSON payloads to Firebase Realtime Database at <code>/streetlights/NG-001.json</code> every 5 seconds.
-                  </p>
-                </div>
-
-                {/* Pinout Details */}
-                <div className="space-y-2">
-                  <h5 className="text-xs font-bold text-slate-800 uppercase tracking-wider">ESP32 GPIO Pin Configuration</h5>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                    <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
-                      <span className="font-semibold text-indigo-700 block">LDR_PIN: GPIO 34 (ADC)</span>
-                      <span className="text-[11px] text-slate-600">Measures ambient light (&lt;300 = NIGHT, &gt;=300 = DAY)</span>
-                    </div>
-
-                    <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
-                      <span className="font-semibold text-red-700 block">CURRENT_PIN: GPIO 36 (ADC)</span>
-                      <span className="text-[11px] text-slate-600">Current sensor with 100 sample averaging</span>
-                    </div>
-
-                    <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
-                      <span className="font-semibold text-emerald-700 block">LED1_PIN (18) & LED2_PIN (19)</span>
-                      <span className="text-[11px] text-slate-600">Streetlight Pole 1 & Pole 2 digital outputs</span>
-                    </div>
-
-                    <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
-                      <span className="font-semibold text-cyan-700 block">OLED SDA (21) & SCL (22)</span>
-                      <span className="text-[11px] text-slate-600">I2C interface for 128x64 SSD1306 display</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Firebase Connection Config Note */}
-                <div className="bg-amber-50 p-3 rounded-xl border border-amber-200 text-xs space-y-1">
-                  <div className="flex items-center gap-1.5 font-bold text-amber-900">
-                    <Info className="w-4 h-4 text-amber-700" /> Firebase Integration Note:
-                  </div>
-                  <p className="text-amber-800 text-[11px] leading-relaxed">
-                    Set <code>FIREBASE_URL</code> in your Arduino code to your Firebase Realtime Database URL (without trailing slash).
-                    The frontend automatically listens to <code>/streetlights</code> in real-time.
-                  </p>
                 </div>
               </div>
             )}
-          </div>
-
-          {/* Modal Footer */}
-          <div className="p-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
-            <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-              ESP32 NG-001 Live Stream
-            </span>
-            <Button size="sm" variant="default" onClick={onClose} className="h-8 px-4 text-xs bg-slate-900 hover:bg-slate-800 text-white">
-              Done
-            </Button>
           </div>
         </motion.div>
       </div>

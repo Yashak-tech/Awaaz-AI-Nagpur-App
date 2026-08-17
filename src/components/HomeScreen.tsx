@@ -29,6 +29,7 @@ interface HomeScreenProps {
   isAdminView?: boolean;
   onStatusUpdate?: (reportId: string, status: Report['status']) => void;
   onRateReport?: (reportId: string, rating: number) => void;
+  onNavigateToMap?: (lat?: number, lng?: number) => void;
 }
 
 export function HomeScreen({
@@ -42,7 +43,8 @@ export function HomeScreen({
   onReportAgain,
   isAdminView,
   onStatusUpdate,
-  onRateReport
+  onRateReport,
+  onNavigateToMap
 }: HomeScreenProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [newComment, setNewComment] = useState('');
@@ -629,6 +631,7 @@ export function HomeScreen({
       <IoTNotificationModal
         isOpen={isIoTModalOpen}
         onClose={() => setIsIoTModalOpen(false)}
+        onNavigateToMap={onNavigateToMap}
       />
     </div>
   );
