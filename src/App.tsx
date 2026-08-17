@@ -297,12 +297,12 @@ export default function App() {
         id: '6',
         title: 'Non-functional streetlight poles near Mankapur',
         description: 'Three consecutive street light fixtures out of order near Mankapur chowk, leaving intersection in total darkness.',
-        imageUrl: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=600&auto=format&fit=crop&q=80',
+        imageUrl: '/images/mankapur-square-streetlight.png',
         media: [
           {
             id: '6-1',
             type: 'image',
-            url: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=600&auto=format&fit=crop&q=80'
+            url: '/images/mankapur-square-streetlight.png'
           }
         ],
         district: 'Nagpur',
