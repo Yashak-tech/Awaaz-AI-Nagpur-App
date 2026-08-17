@@ -114,23 +114,23 @@ export default function App() {
 
   // Initialize with realistic Nagpur Municipal Corporation reports across 10 administrative zones
   useEffect(() => {
-    // Placeholder images from Unsplash for prototype demo purposes. Replace with real citizen-submitted photos once the app captures live reports.
+    // Real Nagpur civic issue photos from news sources. Replace with live citizen-submitted photos once the app captures reports.
     const initialReports: Report[] = [
       {
         id: '1',
         title: 'Major pothole near Chhatrapati Square',
         description: 'Deep pothole on Wardha Road near Chhatrapati Square causing severe traffic slowdowns and vehicle damage. Water logging during monsoon makes it worse.',
-        imageUrl: 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=600&auto=format&fit=crop&q=80',
+        imageUrl: '/images/wardha-road-traffic-jam.png',
         media: [
           {
             id: '1-1',
             type: 'image',
-            url: 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=600&auto=format&fit=crop&q=80'
+            url: '/images/wardha-road-traffic-jam.png'
           },
           {
             id: '1-2',
             type: 'image',
-            url: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&auto=format&fit=crop&q=80'
+            url: '/images/pothole-water-filled.jpg'
           }
         ],
         district: 'Nagpur',
@@ -164,12 +164,12 @@ export default function App() {
         id: '2',
         title: 'Deteriorated road section in New Manish Nagar',
         description: 'Rainwater-filled potholes and washed-out asphalt along Manish Nagar stretch creating hazardous commute for two-wheelers.',
-        imageUrl: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&auto=format&fit=crop&q=80',
+        imageUrl: '/images/pothole-water-filled.jpg',
         media: [
           {
             id: '2-1',
             type: 'image',
-            url: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&auto=format&fit=crop&q=80'
+            url: '/images/pothole-water-filled.jpg'
           }
         ],
         district: 'Nagpur',
@@ -197,12 +197,12 @@ export default function App() {
         id: '3',
         title: 'Severe waterlogging on Khamla-Pratap Nagar road',
         description: 'Heavy monsoon downpour causing knee-deep water accumulation on main thoroughfare due to blocked runoff channels.',
-        imageUrl: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=600&auto=format&fit=crop&q=80',
+        imageUrl: '/images/waterlogging-nagpur-road.jpg',
         media: [
           {
             id: '3-1',
             type: 'image',
-            url: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=600&auto=format&fit=crop&q=80'
+            url: '/images/waterlogging-nagpur-road.jpg'
           }
         ],
         district: 'Nagpur',
@@ -263,12 +263,12 @@ export default function App() {
         id: '5',
         title: 'Automated IoT Alert: Streetlight Pole #JP-104 Fault',
         description: 'Smart sensor telemetry detected continuous voltage drop and dark cycle on Jaripatka streetlight cluster for over 48 hours.',
-        imageUrl: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=600&auto=format&fit=crop&q=80',
+        imageUrl: '/images/broken-streetlight-night.png',
         media: [
           {
             id: '5-1',
             type: 'image',
-            url: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=600&auto=format&fit=crop&q=80'
+            url: '/images/broken-streetlight-night.png'
           }
         ],
         district: 'Nagpur',
@@ -330,12 +330,12 @@ export default function App() {
         id: '7',
         title: 'Water inundation across Sitabuldi Market corridor',
         description: 'Stormwater backflow and Nag river swelling inundating pedestrian market walkways and shops during heavy rainfall.',
-        imageUrl: 'https://images.unsplash.com/photo-1517649763962-0c623266ddc0?w=600&auto=format&fit=crop&q=80',
+        imageUrl: '/images/monsoon-rain-sitabuldi.jpg',
         media: [
           {
             id: '7-1',
             type: 'image',
-            url: 'https://images.unsplash.com/photo-1517649763962-0c623266ddc0?w=600&auto=format&fit=crop&q=80'
+            url: '/images/monsoon-rain-sitabuldi.jpg'
           }
         ],
         district: 'Nagpur',
@@ -397,12 +397,12 @@ export default function App() {
         id: '9',
         title: 'Uncollected waste accumulation at Itwari Market',
         description: 'Missed door-to-door waste collection resulting in massive roadside garbage pile spreading foul smell across Central Avenue.',
-        imageUrl: 'https://images.unsplash.com/photo-1605600659908-0ef719419d41?w=600&auto=format&fit=crop&q=80',
+        imageUrl: '/images/garbage-overflow-nagpur.jpg',
         media: [
           {
             id: '9-1',
             type: 'image',
-            url: 'https://images.unsplash.com/photo-1605600659908-0ef719419d41?w=600&auto=format&fit=crop&q=80'
+            url: '/images/garbage-overflow-nagpur.jpg'
           }
         ],
         district: 'Nagpur',
