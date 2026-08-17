@@ -500,12 +500,12 @@ export default function App() {
         id: '12',
         title: 'Hazardous open stormwater drain near Nandanvan',
         description: 'Concrete slab missing on deep roadside storm drain along Great Nag Road, posing fatal hazard to two-wheelers and pedestrians.',
-        imageUrl: 'https://images.unsplash.com/photo-1508873696983-2df5293cb32f?w=600&auto=format&fit=crop&q=80',
+        imageUrl: '/images/nehru-nagar-drain.jpg',
         media: [
           {
             id: '12-1',
             type: 'image',
-            url: 'https://images.unsplash.com/photo-1508873696983-2df5293cb32f?w=600&auto=format&fit=crop&q=80'
+            url: '/images/nehru-nagar-drain.jpg'
           }
         ],
         district: 'Nagpur',
