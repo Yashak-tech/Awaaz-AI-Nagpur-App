@@ -112,34 +112,29 @@ export default function App() {
 
   // Initialize with realistic Nagpur Municipal Corporation reports across 10 administrative zones
   useEffect(() => {
+    // Placeholder images from Unsplash for prototype demo purposes. Replace with real citizen-submitted photos once the app captures live reports.
     const initialReports: Report[] = [
       {
         id: '1',
         title: 'Major pothole near Chhatrapati Square',
         description: 'Deep pothole on Wardha Road near Chhatrapati Square causing severe traffic slowdowns and vehicle damage. Water logging during monsoon makes it worse.',
-        imageUrl: 'https://www.transpoco.com/hubfs/the_pothole_problem_1%2C000%2C000%20reports%20every%20year%20(one%20every%20two%20minutes).png?w=400',
+        imageUrl: 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=600&auto=format&fit=crop&q=80',
         media: [
           {
             id: '1-1',
             type: 'image',
-            url: 'https://www.transpoco.com/hubfs/the_pothole_problem_1%2C000%2C000%20reports%20every%20year%20(one%20every%20two%20minutes).png?w=400'
+            url: 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=600&auto=format&fit=crop&q=80'
           },
           {
             id: '1-2',
             type: 'image',
-            url: 'https://i.pinimg.com/736x/bd/b7/e8/bdb7e8ec4259508ce023744b1aeb99fa.jpg?w=400'
-          },
-          {
-            id: '1-3',
-            type: 'video',
-            url: 'https://example.com/pothole-video.mp4',
-            thumbnail: 'https://i.pinimg.com/1200x/9a/f9/0d/9af90dfa7704caa1ea391a9b3f61b24c.jpg?w=400'
+            url: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&auto=format&fit=crop&q=80'
           }
         ],
         district: 'Nagpur',
         ward: 'Zone 1 - Laxmi Nagar (Ward 36)',
         street: 'Wardha Road',
-        coordinates: { lat: 21.1125, lng: 79.0650 },
+        coordinates: { lat: 21.1198, lng: 79.0672 },
         distance: 0.3,
         timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
         aiTag: 'Road Infrastructure',
@@ -163,159 +158,416 @@ export default function App() {
       },
       {
         id: '2',
-        title: 'Garbage overflow at Sitabuldi Main Market',
-        description: 'Multiple municipal garbage containers overflowing at Sitabuldi main street market. Creating health hazard and foul odor.',
-        imageUrl: 'https://i.pinimg.com/736x/80/f3/96/80f3960217c48c2f1a8eda45ff5da35b.jpg?w=400',
+        title: 'Deteriorated road section in New Manish Nagar',
+        description: 'Rainwater-filled potholes and washed-out asphalt along Manish Nagar stretch creating hazardous commute for two-wheelers.',
+        imageUrl: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&auto=format&fit=crop&q=80',
         media: [
           {
             id: '2-1',
             type: 'image',
-            url: 'https://i.pinimg.com/736x/80/f3/96/80f3960217c48c2f1a8eda45ff5da35b.jpg?w=400'
-          },
-          {
-            id: '2-2',
-            type: 'image',
-            url: 'https://i.pinimg.com/1200x/96/16/38/96163836005bd8560ce0ebd6d3aa3e14.jpg?w=400'
+            url: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&auto=format&fit=crop&q=80'
           }
         ],
         district: 'Nagpur',
-        ward: 'Zone 4 - Dhantoli (Ward 17)',
-        street: 'Sitabuldi Main Road',
-        coordinates: { lat: 21.1462, lng: 79.0838 },
-        distance: 1.2,
-        timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000),
-        aiTag: 'Waste Management',
+        ward: 'Zone 1 - Laxmi Nagar (Ward 36)',
+        street: 'New Manish Nagar Main Road',
+        coordinates: { lat: 21.1050, lng: 79.0550 },
+        distance: 1.1,
+        timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000),
+        aiTag: 'Road Infrastructure',
         aiConfidence: 91,
-        status: 'submitted',
-        upvotes: 23,
+        status: 'acknowledged',
+        upvotes: 28,
         comments: [
-          { id: '4', text: 'NMC Sanitation department should clear this daily', timestamp: new Date(), author: 'Dr. Anita Devi' },
-          { id: '5', text: 'High footfall area needs frequent bin collection', timestamp: new Date(), author: 'Ravi Gupta' }
+          { id: '4', text: 'Patchwork needed urgently on this entire section', timestamp: new Date(), author: 'Sanjay Deshmukh' }
         ],
-        severity: 7,
-        type: 'garbage',
+        severity: 6,
+        type: 'road',
         hasUserUpvoted: false,
         priority: 'medium',
-        isProactiveSensorAlert: true,
-        suggestedDepartment: 'Waste Management Department',
-        audioUrl: 'https://cdn.freesound.org/previews/320/320655_5260872-lq.mp3',
-        voiceDurationSeconds: 12
+        suggestedDepartment: 'Public Works Department'
       },
       {
         id: '3',
-        title: 'Non-functional LED streetlights on Amravati Road',
-        description: 'LED street light pole damaged near Law College Square on Amravati Road. Area becomes dark and unsafe after sunset.',
-        imageUrl: 'https://i.pinimg.com/1200x/f4/c0/5c/f4c05c75472d231f783af9b203cc2ec0.jpg?w=400&h=300',
+        title: 'Severe waterlogging on Khamla-Pratap Nagar road',
+        description: 'Heavy monsoon downpour causing knee-deep water accumulation on main thoroughfare due to blocked runoff channels.',
+        imageUrl: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=600&auto=format&fit=crop&q=80',
         media: [
           {
             id: '3-1',
             type: 'image',
-            url: 'https://i.pinimg.com/1200x/f4/c0/5c/f4c05c75472d231f783af9b203cc2ec0.jpg?w=400&h=300'
-          },
-          {
-            id: '2-2',
-            type: 'image',
-            url: 'https://i.pinimg.com/1200x/90/13/ef/9013ef81025bd58455e717daaaa1934b.jpg?w=400&h=300'
+            url: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=600&auto=format&fit=crop&q=80'
           }
         ],
         district: 'Nagpur',
-        ward: 'Zone 2 - Dharampeth (Ward 15)',
-        street: 'Amravati Road',
-        coordinates: { lat: 21.1485, lng: 79.0550 },
-        distance: 2.1,
-        timestamp: new Date(Date.now() - 8 * 60 * 60 * 1000),
-        aiTag: 'Street Lighting',
-        aiConfidence: 96,
-        status: 'resolved',
-        upvotes: 15,
+        ward: 'Zone 1 - Laxmi Nagar (Ward 36)',
+        street: 'Khamla - Pratap Nagar Main Link',
+        coordinates: { lat: 21.1120, lng: 79.0580 },
+        distance: 0.8,
+        timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000),
+        aiTag: 'Water Logging',
+        aiConfidence: 93,
+        status: 'pending',
+        upvotes: 39,
         comments: [
-          { id: '6', text: 'Fixed! Thank you NMC Electrical department team', timestamp: new Date(), author: 'Suresh Mahato' }
+          { id: '5', text: 'Water is entering local shop basements!', timestamp: new Date(), author: 'Vikas Patil' }
         ],
-        severity: 6,
-        type: 'streetlight',
-        hasUserUpvoted: false,
-        priority: 'low',
-        suggestedDepartment: 'Electrical Department',
-        resolvedAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
-        satisfactionRating: 4
-      },
-      {
-        id: '4',
-        title: 'Water pipeline disruption near Medical Square',
-        description: 'Water pipeline leak near GMCH Medical Square area. Residential colonies facing low pressure for 2 days.',
-        imageUrl: 'https://i.pinimg.com/1200x/1f/fe/4b/1ffe4b43e9dd07dda46f73aa463883e9.jpg?w=400',
-        media: [
-          {
-            id: '3-1',
-            type: 'image',
-            url: 'https://i.pinimg.com/1200x/1f/fe/4b/1ffe4b43e9dd07dda46f73aa463883e9.jpg?w=400&h=400'
-          },
-          {
-            id: '2-2',
-            type: 'image',
-            url: 'https://i.pinimg.com/736x/95/b9/99/95b9990ad03eef2a719e7d2dba1e431a.jpg?w=400&h=400'
-          }
-        ],
-        district: 'Nagpur',
-        ward: 'Zone 3 - Hanuman Nagar (Ward 31)',
-        street: 'Medical College Road',
-        coordinates: { lat: 21.1305, lng: 79.0975 },
-        distance: 3.2,
-        timestamp: new Date(Date.now() - 12 * 60 * 60 * 1000),
-        aiTag: 'Water Supply',
-        aiConfidence: 89,
-        status: 'submitted',
-        upvotes: 67,
-        comments: [
-          { id: '7', text: 'Please urgently restore full water supply!', timestamp: new Date(), author: 'Meera Gupta' },
-          { id: '8', text: 'Hospitals and residents nearby are affected', timestamp: new Date(), author: 'Ashok Kumar' },
-          { id: '9', text: 'NMC Water Works team is fixing the main valve', timestamp: new Date(), author: 'NMC Official' }
-        ],
-        severity: 10,
+        severity: 8,
         type: 'water',
-        hasUserUpvoted: true,
+        hasUserUpvoted: false,
         priority: 'high',
         suggestedDepartment: 'Water Supply Department'
       },
       {
-        id: '5',
-        title: 'Drainage overflow at Central Avenue Itwari',
-        description: 'Main storm drainage line blocked near Itwari market causing foul water logging on Central Avenue during rain.',
-        imageUrl: 'https://i.pinimg.com/1200x/2b/79/8c/2b798c30e78d360375daafa709d68270.jpg?w=400',
+        id: '4',
+        title: 'Resurfacing washed away on Mankapur Ring Road',
+        description: 'Recent road patch repair gave way after fresh rain, leaving loose gravel and large crater exposing substandard asphalt.',
+        imageUrl: 'https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=600&auto=format&fit=crop&q=80',
         media: [
           {
-            id: '3-1',
+            id: '4-1',
             type: 'image',
-            url: 'https://i.pinimg.com/1200x/2b/79/8c/2b798c30e78d360375daafa709d68270.jpg?w=400'
-          },
+            url: 'https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=600&auto=format&fit=crop&q=80'
+          }
+        ],
+        district: 'Nagpur',
+        ward: 'Zone 10 - Mangalwari (Ward 2)',
+        street: 'Mankapur Ring Road',
+        coordinates: { lat: 21.1850, lng: 79.0720 },
+        distance: 2.4,
+        timestamp: new Date(Date.now() - 7 * 60 * 60 * 1000),
+        aiTag: 'Road Infrastructure',
+        aiConfidence: 89,
+        status: 'submitted',
+        upvotes: 31,
+        comments: [
+          { id: '6', text: 'Quality check required on this contractor repair', timestamp: new Date(), author: 'Nitin Gadge' }
+        ],
+        severity: 8,
+        type: 'road',
+        hasUserUpvoted: false,
+        priority: 'high',
+        suggestedDepartment: 'Public Works Department'
+      },
+      {
+        id: '5',
+        title: 'Automated IoT Alert: Streetlight Pole #JP-104 Fault',
+        description: 'Smart sensor telemetry detected continuous voltage drop and dark cycle on Jaripatka streetlight cluster for over 48 hours.',
+        imageUrl: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=600&auto=format&fit=crop&q=80',
+        media: [
           {
-            id: '2-2',
+            id: '5-1',
             type: 'image',
-            url: 'https://i.pinimg.com/736x/3b/46/d9/3b46d9f4426d98d5d45e035c53b5836d.jpg?w=400'
+            url: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=600&auto=format&fit=crop&q=80'
+          }
+        ],
+        district: 'Nagpur',
+        ward: 'Zone 10 - Mangalwari (Ward 2)',
+        street: 'Jaripatka Main Road',
+        coordinates: { lat: 21.1890, lng: 79.0910 },
+        distance: 2.9,
+        timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000),
+        aiTag: 'Street Lighting',
+        aiConfidence: 98,
+        status: 'submitted',
+        upvotes: 19,
+        comments: [
+          { id: '7', text: 'Auto-ticket dispatched to NMC Electrical Division 4', timestamp: new Date(), author: 'Awaaz IoT System' }
+        ],
+        severity: 7,
+        type: 'streetlight',
+        hasUserUpvoted: false,
+        priority: 'medium',
+        isProactiveSensorAlert: true,
+        suggestedDepartment: 'Electrical Department'
+      },
+      {
+        id: '6',
+        title: 'Non-functional streetlight poles near Mankapur',
+        description: 'Three consecutive street light fixtures out of order near Mankapur chowk, leaving intersection in total darkness.',
+        imageUrl: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=600&auto=format&fit=crop&q=80',
+        media: [
+          {
+            id: '6-1',
+            type: 'image',
+            url: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=600&auto=format&fit=crop&q=80'
+          }
+        ],
+        district: 'Nagpur',
+        ward: 'Zone 10 - Mangalwari (Ward 2)',
+        street: 'Mankapur Main Square',
+        coordinates: { lat: 21.1780, lng: 79.0650 },
+        distance: 2.7,
+        timestamp: new Date(Date.now() - 10 * 60 * 60 * 1000),
+        aiTag: 'Street Lighting',
+        aiConfidence: 95,
+        status: 'pending',
+        upvotes: 14,
+        comments: [
+          { id: '8', text: 'Very dark stretch, dangerous for pedestrians at night', timestamp: new Date(), author: 'Pooja Raut' }
+        ],
+        severity: 5,
+        type: 'streetlight',
+        hasUserUpvoted: false,
+        priority: 'low',
+        suggestedDepartment: 'Electrical Department'
+      },
+      {
+        id: '7',
+        title: 'Water inundation across Sitabuldi Market corridor',
+        description: 'Stormwater backflow and Nag river swelling inundating pedestrian market walkways and shops during heavy rainfall.',
+        imageUrl: 'https://images.unsplash.com/photo-1517649763962-0c623266ddc0?w=600&auto=format&fit=crop&q=80',
+        media: [
+          {
+            id: '7-1',
+            type: 'image',
+            url: 'https://images.unsplash.com/photo-1517649763962-0c623266ddc0?w=600&auto=format&fit=crop&q=80'
+          }
+        ],
+        district: 'Nagpur',
+        ward: 'Zone 4 - Dhantoli (Ward 17)',
+        street: 'Sitabuldi Main Market & Mor Bhawan',
+        coordinates: { lat: 21.1466, lng: 79.0788 },
+        distance: 1.4,
+        timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000),
+        aiTag: 'Water Logging',
+        aiConfidence: 92,
+        status: 'pending',
+        upvotes: 52,
+        comments: [
+          { id: '9', text: 'Customers cannot enter shops due to water buildup', timestamp: new Date(), author: 'Sitabuldi Traders Association' },
+          { id: '10', text: 'Pumping machines required near Mor Bhawan', timestamp: new Date(), author: 'Ramesh Chawla' }
+        ],
+        severity: 8,
+        type: 'water',
+        hasUserUpvoted: false,
+        priority: 'high',
+        suggestedDepartment: 'Drainage Department'
+      },
+      {
+        id: '8',
+        title: 'Weed choke & silt accumulation in Ambazari drain',
+        description: 'Heavy weed growth and untreated sewage blockage near discharge channel restricting flow towards Nag River.',
+        imageUrl: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=600&auto=format&fit=crop&q=80',
+        media: [
+          {
+            id: '8-1',
+            type: 'image',
+            url: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=600&auto=format&fit=crop&q=80'
+          }
+        ],
+        district: 'Nagpur',
+        ward: 'Zone 2 - Dharampeth (Ward 15)',
+        street: 'Civil Lines / Ambazari Belt',
+        coordinates: { lat: 21.1350, lng: 79.0500 },
+        distance: 2.0,
+        timestamp: new Date(Date.now() - 9 * 60 * 60 * 1000),
+        aiTag: 'Drainage System',
+        aiConfidence: 88,
+        status: 'acknowledged',
+        upvotes: 26,
+        comments: [
+          { id: '11', text: 'Desilting machine scheduled under flood mitigation project', timestamp: new Date(), author: 'NMC Drainage Team' }
+        ],
+        severity: 7,
+        type: 'drainage',
+        hasUserUpvoted: false,
+        priority: 'medium',
+        suggestedDepartment: 'Drainage Department'
+      },
+      {
+        id: '9',
+        title: 'Uncollected waste accumulation at Itwari Market',
+        description: 'Missed door-to-door waste collection resulting in massive roadside garbage pile spreading foul smell across Central Avenue.',
+        imageUrl: 'https://images.unsplash.com/photo-1605600659908-0ef719419d41?w=600&auto=format&fit=crop&q=80',
+        media: [
+          {
+            id: '9-1',
+            type: 'image',
+            url: 'https://images.unsplash.com/photo-1605600659908-0ef719419d41?w=600&auto=format&fit=crop&q=80'
           }
         ],
         district: 'Nagpur',
         ward: 'Zone 6 - Gandhibagh (Ward 18)',
-        street: 'Central Avenue, Itwari',
-        coordinates: { lat: 21.1520, lng: 79.1050 },
+        street: 'Itwari Market / Central Avenue',
+        coordinates: { lat: 21.1550, lng: 79.1000 },
         distance: 1.8,
         timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000),
-        aiTag: 'Drainage System',
-        aiConfidence: 87,
+        aiTag: 'Waste Management',
+        aiConfidence: 95,
         status: 'pending',
-        upvotes: 34,
+        upvotes: 43,
         comments: [
-          { id: '10', text: 'Itwari market shoppers having trouble walking', timestamp: new Date(), author: 'Ravi Tiwari' },
-          { id: '11', text: 'NMC desilting machine required urgently', timestamp: new Date(), author: 'Sita Devi' }
+          { id: '12', text: 'Contractor skipped morning rounds for 3 consecutive days', timestamp: new Date(), author: 'Kishore Jaiswal' }
         ],
         severity: 8,
+        type: 'garbage',
+        hasUserUpvoted: false,
+        priority: 'high',
+        isDuplicateMerged: true,
+        duplicateCount: 6,
+        suggestedDepartment: 'Waste Management Department'
+      },
+      {
+        id: '10',
+        title: 'Overflowing community bin near Mayo Hospital Circle',
+        description: 'Commercial bins overflowing onto pedestrian path near hospital approach road causing serious hygiene concerns.',
+        imageUrl: 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=600&auto=format&fit=crop&q=80',
+        media: [
+          {
+            id: '10-1',
+            type: 'image',
+            url: 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=600&auto=format&fit=crop&q=80'
+          }
+        ],
+        district: 'Nagpur',
+        ward: 'Zone 7 - Sataranjipura (Ward 22)',
+        street: 'Mayo Hospital Circle, Maskasath',
+        coordinates: { lat: 21.1520, lng: 79.0950 },
+        distance: 2.2,
+        timestamp: new Date(Date.now() - 8 * 60 * 60 * 1000),
+        aiTag: 'Waste Management',
+        aiConfidence: 90,
+        status: 'submitted',
+        upvotes: 22,
+        comments: [
+          { id: '13', text: 'Hospital visitors complaining about unsanitary conditions', timestamp: new Date(), author: 'Dr. Ansari' }
+        ],
+        severity: 6,
+        type: 'garbage',
+        hasUserUpvoted: false,
+        priority: 'medium',
+        suggestedDepartment: 'Waste Management Department'
+      },
+      {
+        id: '11',
+        title: 'Water pipeline leakage near Medical Square GMCH',
+        description: 'Underground main distribution line leaking potable water onto roadway, reducing residential colony supply pressure.',
+        imageUrl: 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=600&auto=format&fit=crop&q=80',
+        media: [
+          {
+            id: '11-1',
+            type: 'image',
+            url: 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=600&auto=format&fit=crop&q=80'
+          }
+        ],
+        district: 'Nagpur',
+        ward: 'Zone 3 - Hanuman Nagar (Ward 31)',
+        street: 'Medical College Road near GMCH',
+        coordinates: { lat: 21.1305, lng: 79.0975 },
+        distance: 3.1,
+        timestamp: new Date(Date.now() - 12 * 60 * 60 * 1000),
+        aiTag: 'Water Supply',
+        aiConfidence: 96,
+        status: 'resolved',
+        upvotes: 58,
+        comments: [
+          { id: '14', text: 'NMC valve replacement completed and pipeline pressure restored', timestamp: new Date(), author: 'NMC Official' }
+        ],
+        severity: 7,
+        type: 'water',
+        hasUserUpvoted: true,
+        priority: 'medium',
+        suggestedDepartment: 'Water Supply Department',
+        resolvedAt: new Date(Date.now() - 4 * 60 * 60 * 1000),
+        satisfactionRating: 5
+      },
+      {
+        id: '12',
+        title: 'Hazardous open stormwater drain near Nandanvan',
+        description: 'Concrete slab missing on deep roadside storm drain along Great Nag Road, posing fatal hazard to two-wheelers and pedestrians.',
+        imageUrl: 'https://images.unsplash.com/photo-1508873696983-2df5293cb32f?w=600&auto=format&fit=crop&q=80',
+        media: [
+          {
+            id: '12-1',
+            type: 'image',
+            url: 'https://images.unsplash.com/photo-1508873696983-2df5293cb32f?w=600&auto=format&fit=crop&q=80'
+          }
+        ],
+        district: 'Nagpur',
+        ward: 'Zone 5 - Nehru Nagar (Ward 28)',
+        street: 'Great Nag Road, Nandanvan',
+        coordinates: { lat: 21.1380, lng: 79.1180 },
+        distance: 3.5,
+        timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000),
+        aiTag: 'Drainage System',
+        aiConfidence: 97,
+        status: 'pending',
+        upvotes: 61,
+        comments: [
+          { id: '15', text: 'A two-wheeler almost fell into this open pit yesterday!', timestamp: new Date(), author: 'Mahesh Wankhede' }
+        ],
+        severity: 9,
         type: 'drainage',
         hasUserUpvoted: false,
         priority: 'high',
         suggestedDepartment: 'Drainage Department'
+      },
+      {
+        id: '13',
+        title: 'Vegetable market waste dumped near Kalamna yard',
+        description: 'Organic waste and debris left uncleaned on access road blocking trucks and generating foul odor near residential belt.',
+        imageUrl: 'https://images.unsplash.com/photo-1528323273322-d81458248d40?w=600&auto=format&fit=crop&q=80',
+        media: [
+          {
+            id: '13-1',
+            type: 'image',
+            url: 'https://images.unsplash.com/photo-1528323273322-d81458248d40?w=600&auto=format&fit=crop&q=80'
+          }
+        ],
+        district: 'Nagpur',
+        ward: 'Zone 8 - Lakadganj (Ward 24)',
+        street: 'Kalamna Market Road, Pardi',
+        coordinates: { lat: 21.1580, lng: 79.1350 },
+        distance: 4.1,
+        timestamp: new Date(Date.now() - 11 * 60 * 60 * 1000),
+        aiTag: 'Waste Management',
+        aiConfidence: 91,
+        status: 'submitted',
+        upvotes: 17,
+        comments: [
+          { id: '16', text: 'Daily lifting needed for agricultural market waste', timestamp: new Date(), author: 'Shyam Sundar' }
+        ],
+        severity: 6,
+        type: 'garbage',
+        hasUserUpvoted: false,
+        priority: 'medium',
+        suggestedDepartment: 'Waste Management Department'
+      },
+      {
+        id: '14',
+        title: 'Continuous dark corridor from Indora to Bezonbagh',
+        description: 'Series of non-functional streetlight fixtures leaving busy commercial and transit avenue without lighting after 7 PM.',
+        imageUrl: 'https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?w=600&auto=format&fit=crop&q=80',
+        media: [
+          {
+            id: '14-1',
+            type: 'image',
+            url: 'https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?w=600&auto=format&fit=crop&q=80'
+          }
+        ],
+        district: 'Nagpur',
+        ward: 'Zone 9 - Ashi Nagar (Ward 8)',
+        street: 'Indora Chowk, Bezonbagh Belt',
+        coordinates: { lat: 21.1720, lng: 79.0920 },
+        distance: 3.8,
+        timestamp: new Date(Date.now() - 14 * 60 * 60 * 1000),
+        aiTag: 'Street Lighting',
+        aiConfidence: 94,
+        status: 'pending',
+        upvotes: 25,
+        comments: [
+          { id: '17', text: 'Please replace faulty choke coils and LED units', timestamp: new Date(), author: 'Rahul Meshram' }
+        ],
+        severity: 5,
+        type: 'streetlight',
+        hasUserUpvoted: false,
+        priority: 'low',
+        suggestedDepartment: 'Electrical Department'
       }
     ];
     setReports(initialReports);
+
   }, []);
 
   const handleCompleteOnboarding = (selectedDistrict: string, coords: { lat: number; lng: number }, language: Language) => {
