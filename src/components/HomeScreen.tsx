@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, ArrowUp, MessageCircle, Flag, X, Mic, Building2, Clock, MapPin, CheckCircle, Star, ExternalLink } from 'lucide-react';
+import { Search, ArrowUp, MessageCircle, Flag, X, Mic, Building2, Clock, MapPin, CheckCircle, Star, ExternalLink, Bell } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Badge } from './ui/badge';
@@ -14,6 +14,8 @@ import { getSeverityColor } from '../utils/severityColors';
 import { RatingPrompt } from './RatingPrompt';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { AudioPlayer } from './AudioPlayer';
+import { IoTNotificationModal } from './IoTNotificationModal';
+import { useIoTTelemetry } from '../hooks/useIoTTelemetry';
 
 interface HomeScreenProps {
   reports: Report[];
@@ -51,6 +53,9 @@ export function HomeScreen({
   const [tempComment, setTempComment] = useState('');
   const [showRatingPrompt, setShowRatingPrompt] = useState(false);
   const [ratingReportId, setRatingReportId] = useState<string | null>(null);
+  const [isIoTModalOpen, setIsIoTModalOpen] = useState(false);
+
+  const { activeFaultCount } = useIoTTelemetry();
 
   const t = translations[user.language];
 
@@ -166,9 +171,30 @@ export function HomeScreen({
                 <p className="text-xs font-semibold text-emerald-600">The Nagpur App • NMC</p>
               </div>
             </div>
-            <div className="text-right">
-              <div className="text-sm font-medium text-green-600">{filteredReports.length} Active Reports</div>
-              <div className="text-xs text-muted-foreground">Real-time updates</div>
+            
+            <div className="flex items-center gap-2.5">
+              <div className="text-right hidden sm:block">
+                <div className="text-sm font-medium text-green-600">{filteredReports.length} Active Reports</div>
+                <div className="text-xs text-muted-foreground">Real-time updates</div>
+              </div>
+
+              {/* IoT Real-Time Detection Notification Bell */}
+              <button
+                onClick={() => setIsIoTModalOpen(true)}
+                className="relative p-2.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500/30 active:scale-95 shadow-sm"
+                aria-label="ESP32 IoT Sensor Alerts"
+                title="ESP32 IoT Real-Time Sensor Telemetry & Alerts"
+              >
+                <Bell className={`w-5 h-5 ${activeFaultCount > 0 ? 'text-amber-600' : 'text-slate-600'}`} />
+                {activeFaultCount > 0 && (
+                  <span className="absolute -top-1 -right-1 flex h-4 w-4">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-4 w-4 bg-red-500 text-white text-[10px] font-bold items-center justify-center shadow-sm">
+                      {activeFaultCount}
+                    </span>
+                  </span>
+                )}
+              </button>
             </div>
           </div>
           <div className="relative">
@@ -598,6 +624,12 @@ export function HomeScreen({
           reportTitle={reports.find(r => r.id === ratingReportId)?.title || ''}
         />
       )}
+
+      {/* ESP32 IoT Sensor Real-Time Detection Notification Modal */}
+      <IoTNotificationModal
+        isOpen={isIoTModalOpen}
+        onClose={() => setIsIoTModalOpen(false)}
+      />
     </div>
   );
 }

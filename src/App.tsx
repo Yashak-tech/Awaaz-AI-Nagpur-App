@@ -76,9 +76,9 @@ export interface User {
 export type Screen = 'onboarding' | 'home' | 'report' | 'map' | 'profile' | 'analytics' | 'digital-twin';
 
 export default function App() {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [isPostLocationLoading, setIsPostLocationLoading] = useState(false);
-  const [currentScreen, setCurrentScreen] = useState<Screen>('onboarding');
+  const [currentScreen, setCurrentScreen] = useState<Screen>('home');
   const [user, setUser] = useState<User>({
     district: 'Nagpur',
     coordinates: { lat: 21.1458, lng: 79.0882 }, // Nagpur coordinates
@@ -87,19 +87,8 @@ export default function App() {
   });
   const [reports, setReports] = useState<Report[]>([]);
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
-  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
+  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(true);
   const [isAdminView, setIsAdminView] = useState(false);
-
-  // App initialization loading
-  useEffect(() => {
-    const initializeApp = () => {
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 3000); // 3 second loading screen
-    };
-
-    initializeApp();
-  }, []);
 
   // IoT Streetlight Alerts — merge sensor data into reports
   const iotAlerts = useStreetlightAlerts();
