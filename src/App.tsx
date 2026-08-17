@@ -120,12 +120,12 @@ export default function App() {
         id: '1',
         title: 'Major pothole near Chhatrapati Square',
         description: 'Deep pothole on Wardha Road near Chhatrapati Square causing severe traffic slowdowns and vehicle damage. Water logging during monsoon makes it worse.',
-        imageUrl: '/images/wardha-road-traffic-jam.png',
+        imageUrl: '/images/chhatrapati-square-pothole.png',
         media: [
           {
             id: '1-1',
             type: 'image',
-            url: '/images/wardha-road-traffic-jam.png'
+            url: '/images/chhatrapati-square-pothole.png'
           },
           {
             id: '1-2',
