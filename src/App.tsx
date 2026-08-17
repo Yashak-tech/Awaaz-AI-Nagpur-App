@@ -533,12 +533,12 @@ export default function App() {
         id: '13',
         title: 'Vegetable market waste dumped near Kalamna yard',
         description: 'Organic waste and debris left uncleaned on access road blocking trucks and generating foul odor near residential belt.',
-        imageUrl: 'https://images.unsplash.com/photo-1528323273322-d81458248d40?w=600&auto=format&fit=crop&q=80',
+        imageUrl: '/images/lakadganj-market-waste.png',
         media: [
           {
             id: '13-1',
             type: 'image',
-            url: 'https://images.unsplash.com/photo-1528323273322-d81458248d40?w=600&auto=format&fit=crop&q=80'
+            url: '/images/lakadganj-market-waste.png'
           }
         ],
         district: 'Nagpur',
