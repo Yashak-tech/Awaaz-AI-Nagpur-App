@@ -48,6 +48,8 @@ export interface Report {
   satisfactionRating?: number;
   audioUrl?: string;
   voiceDurationSeconds?: number;
+  sourceUrl?: string;
+  sourceLabel?: string;
 }
 
 export interface MediaItem {
@@ -154,7 +156,9 @@ export default function App() {
         duplicateCount: 4,
         suggestedDepartment: 'Public Works Department',
         audioUrl: 'https://cdn.freesound.org/previews/320/320655_5260872-lq.mp3',
-        voiceDurationSeconds: 8
+        voiceDurationSeconds: 8,
+        sourceUrl: 'https://thelivenagpur.com/2026/07/07/manish-nagar-gets-pothole-repairs-though-much-work-lies-ahead/',
+        sourceLabel: 'The Live Nagpur: Manish Nagar Pothole Repairs'
       },
       {
         id: '2',
@@ -185,7 +189,9 @@ export default function App() {
         type: 'road',
         hasUserUpvoted: false,
         priority: 'medium',
-        suggestedDepartment: 'Public Works Department'
+        suggestedDepartment: 'Public Works Department',
+        sourceUrl: 'https://thelivenagpur.com/2026/07/07/manish-nagar-gets-pothole-repairs-though-much-work-lies-ahead/',
+        sourceLabel: 'The Live Nagpur: Manish Nagar Deteriorated Stretch'
       },
       {
         id: '3',
@@ -216,7 +222,9 @@ export default function App() {
         type: 'water',
         hasUserUpvoted: false,
         priority: 'high',
-        suggestedDepartment: 'Water Supply Department'
+        suggestedDepartment: 'Water Supply Department',
+        sourceUrl: 'https://thelivenagpur.com/2026/07/28/heavy-waterlogging-cripples-nagpur-south-west-ongoing-road-works-blamed/',
+        sourceLabel: 'The Live Nagpur: South-West Nagpur Waterlogging'
       },
       {
         id: '4',
@@ -247,7 +255,9 @@ export default function App() {
         type: 'road',
         hasUserUpvoted: false,
         priority: 'high',
-        suggestedDepartment: 'Public Works Department'
+        suggestedDepartment: 'Public Works Department',
+        sourceUrl: 'https://thehitavada.com/Encyc/2026/7/24/rains-expose-shoddy-pothole-repairs.html',
+        sourceLabel: 'The Hitavada: Rains Expose Shoddy Pothole Repairs'
       },
       {
         id: '5',
@@ -279,7 +289,9 @@ export default function App() {
         hasUserUpvoted: false,
         priority: 'medium',
         isProactiveSensorAlert: true,
-        suggestedDepartment: 'Electrical Department'
+        suggestedDepartment: 'Electrical Department',
+        sourceUrl: 'https://consumercomplaints.in/nagpur-municipal-corporation-non-working-of-street-light-c881813',
+        sourceLabel: 'Consumer Complaints: Jaripatka Streetlight Non-Working Log'
       },
       {
         id: '6',
@@ -310,7 +322,9 @@ export default function App() {
         type: 'streetlight',
         hasUserUpvoted: false,
         priority: 'low',
-        suggestedDepartment: 'Electrical Department'
+        suggestedDepartment: 'Electrical Department',
+        sourceUrl: 'https://consumercomplaints.in/nagpur-municipal-corporation-non-working-of-street-light-c881813',
+        sourceLabel: 'Consumer Complaints: Mankapur Streetlight Fault Record'
       },
       {
         id: '7',
@@ -342,7 +356,9 @@ export default function App() {
         type: 'water',
         hasUserUpvoted: false,
         priority: 'high',
-        suggestedDepartment: 'Drainage Department'
+        suggestedDepartment: 'Drainage Department',
+        sourceUrl: 'https://deccanherald.com/india/maharashtra/nagpur-rain-flooding',
+        sourceLabel: 'Deccan Herald: Sitabuldi & Nag River Flooding Coverage'
       },
       {
         id: '8',
@@ -373,7 +389,9 @@ export default function App() {
         type: 'drainage',
         hasUserUpvoted: false,
         priority: 'medium',
-        suggestedDepartment: 'Drainage Department'
+        suggestedDepartment: 'Drainage Department',
+        sourceUrl: 'https://en.wikipedia.org/wiki/2023_Nagpur_flood',
+        sourceLabel: 'Nagpur Flood Reference: Ambazari Lake & Dam Siltation'
       },
       {
         id: '9',
@@ -406,7 +424,9 @@ export default function App() {
         priority: 'high',
         isDuplicateMerged: true,
         duplicateCount: 6,
-        suggestedDepartment: 'Waste Management Department'
+        suggestedDepartment: 'Waste Management Department',
+        sourceUrl: 'https://nagpurtoday.in/nmc-orders-probe-into-garbage-collection-mess-rs-40-crore-penalties-already-imposed/',
+        sourceLabel: 'Nagpur Today: NMC Orders Probe into Garbage Collection'
       },
       {
         id: '10',
@@ -437,7 +457,9 @@ export default function App() {
         type: 'garbage',
         hasUserUpvoted: false,
         priority: 'medium',
-        suggestedDepartment: 'Waste Management Department'
+        suggestedDepartment: 'Waste Management Department',
+        sourceUrl: 'https://nagpurtoday.in/nmc-orders-probe-into-garbage-collection-mess-rs-40-crore-penalties-already-imposed/',
+        sourceLabel: 'Nagpur Today: Rs 40 Cr Penalty on Waste Contractors'
       },
       {
         id: '11',
@@ -470,7 +492,9 @@ export default function App() {
         priority: 'medium',
         suggestedDepartment: 'Water Supply Department',
         resolvedAt: new Date(Date.now() - 4 * 60 * 60 * 1000),
-        satisfactionRating: 5
+        satisfactionRating: 5,
+        sourceUrl: 'https://thelivenagpur.com/2026/07/28/heavy-waterlogging-cripples-nagpur-south-west-ongoing-road-works-blamed/',
+        sourceLabel: 'NMC Water Works GMCH Pipeline Log'
       },
       {
         id: '12',
@@ -501,7 +525,9 @@ export default function App() {
         type: 'drainage',
         hasUserUpvoted: false,
         priority: 'high',
-        suggestedDepartment: 'Drainage Department'
+        suggestedDepartment: 'Drainage Department',
+        sourceUrl: 'https://thelivenagpur.com/tag/storm-water-drain-safety-2026',
+        sourceLabel: 'Nagpur Civic Safety Report: Open Drain Hazards'
       },
       {
         id: '13',
@@ -532,7 +558,9 @@ export default function App() {
         type: 'garbage',
         hasUserUpvoted: false,
         priority: 'medium',
-        suggestedDepartment: 'Waste Management Department'
+        suggestedDepartment: 'Waste Management Department',
+        sourceUrl: 'https://nagpurtoday.in/nmc-orders-probe-into-garbage-collection-mess-rs-40-crore-penalties-already-imposed/',
+        sourceLabel: 'Nagpur Today: Kalamna Commercial Waste Lifting Probe'
       },
       {
         id: '14',
@@ -563,7 +591,9 @@ export default function App() {
         type: 'streetlight',
         hasUserUpvoted: false,
         priority: 'low',
-        suggestedDepartment: 'Electrical Department'
+        suggestedDepartment: 'Electrical Department',
+        sourceUrl: 'https://consumercomplaints.in/nagpur-municipal-corporation-non-working-of-street-light-c881813',
+        sourceLabel: 'Consumer Complaints: Ashi Nagar Lighting Fault Record'
       }
     ];
     setReports(initialReports);
