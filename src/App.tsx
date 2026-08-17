@@ -230,12 +230,12 @@ export default function App() {
         id: '4',
         title: 'Resurfacing washed away on Mankapur Ring Road',
         description: 'Recent road patch repair gave way after fresh rain, leaving loose gravel and large crater exposing substandard asphalt.',
-        imageUrl: 'https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=600&auto=format&fit=crop&q=80',
+        imageUrl: '/images/mankapur-ring-road-pothole.jpg',
         media: [
           {
             id: '4-1',
             type: 'image',
-            url: 'https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=600&auto=format&fit=crop&q=80'
+            url: '/images/mankapur-ring-road-pothole.jpg'
           }
         ],
         district: 'Nagpur',
