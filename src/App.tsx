@@ -566,12 +566,12 @@ export default function App() {
         id: '14',
         title: 'Continuous dark corridor from Indora to Bezonbagh',
         description: 'Series of non-functional streetlight fixtures leaving busy commercial and transit avenue without lighting after 7 PM.',
-        imageUrl: 'https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?w=600&auto=format&fit=crop&q=80',
+        imageUrl: '/images/ashi-nagar-street.png',
         media: [
           {
             id: '14-1',
             type: 'image',
-            url: 'https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?w=600&auto=format&fit=crop&q=80'
+            url: '/images/ashi-nagar-street.png'
           }
         ],
         district: 'Nagpur',
