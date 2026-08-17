@@ -465,12 +465,12 @@ export default function App() {
         id: '11',
         title: 'Water pipeline leakage near Medical Square GMCH',
         description: 'Underground main distribution line leaking potable water onto roadway, reducing residential colony supply pressure.',
-        imageUrl: 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=600&auto=format&fit=crop&q=80',
+        imageUrl: '/images/hanuman-nagar-pipeline.jpg',
         media: [
           {
             id: '11-1',
             type: 'image',
-            url: 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=600&auto=format&fit=crop&q=80'
+            url: '/images/hanuman-nagar-pipeline.jpg'
           }
         ],
         district: 'Nagpur',
