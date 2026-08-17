@@ -364,12 +364,12 @@ export default function App() {
         id: '8',
         title: 'Weed choke & silt accumulation in Ambazari drain',
         description: 'Heavy weed growth and untreated sewage blockage near discharge channel restricting flow towards Nag River.',
-        imageUrl: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=600&auto=format&fit=crop&q=80',
+        imageUrl: '/images/dharampeth-ambazari-flood.png',
         media: [
           {
             id: '8-1',
             type: 'image',
-            url: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=600&auto=format&fit=crop&q=80'
+            url: '/images/dharampeth-ambazari-flood.png'
           }
         ],
         district: 'Nagpur',
