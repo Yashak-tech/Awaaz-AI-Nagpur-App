@@ -432,12 +432,12 @@ export default function App() {
         id: '10',
         title: 'Overflowing community bin near Mayo Hospital Circle',
         description: 'Commercial bins overflowing onto pedestrian path near hospital approach road causing serious hygiene concerns.',
-        imageUrl: 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=600&auto=format&fit=crop&q=80',
+        imageUrl: '/images/satranjipura-construction-flood.png',
         media: [
           {
             id: '10-1',
             type: 'image',
-            url: 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=600&auto=format&fit=crop&q=80'
+            url: '/images/satranjipura-construction-flood.png'
           }
         ],
         district: 'Nagpur',
