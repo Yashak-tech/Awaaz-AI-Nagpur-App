@@ -16,13 +16,11 @@ import {
   Wrench, 
   Radio, 
   Tv, 
-  Info,
   Send,
   Sliders,
-  ExternalLink,
-  ShieldCheck,
   Clock,
-  Layers
+  ShieldCheck,
+  Building2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useIoTTelemetry } from '../hooks/useIoTTelemetry';
@@ -32,7 +30,7 @@ import { toast } from 'sonner';
 interface IoTNotificationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onNavigateToMap?: (lat: number, lng: number) => void;
+  onNavigateToMap?: (lat?: number, lng?: number) => void;
 }
 
 export function IoTNotificationModal({
@@ -40,8 +38,8 @@ export function IoTNotificationModal({
   onClose,
   onNavigateToMap
 }: IoTNotificationModalProps) {
-  const { devices, alerts, activeFaultCount, setHardwareStatus, resolveAlert } = useIoTTelemetry();
-  const [activeTab, setActiveTab] = useState<'overview' | 'oled' | 'circuit'>('overview');
+  const { devices, activeFaultCount, setHardwareStatus, resolveAlert } = useIoTTelemetry();
+  const [activeTab, setActiveTab] = useState<'overview' | 'oled' | 'system'>('overview');
   const [isDispatched, setIsDispatched] = useState<Record<string, boolean>>({});
 
   if (!isOpen) return null;
@@ -60,17 +58,17 @@ export function IoTNotificationModal({
     location: {
       lat: 21.1233,
       lng: 79.0514,
-      area: 'Food and Multi Activity center ,VNIT Nagpur',
+      area: 'Food and Multi Activity Center, VNIT Nagpur',
       ward: 'Zone 2 - Dharampeth (Ward 15)',
       zone: 'Zone 2 - Dharampeth'
     },
     lastUpdated: Date.now(),
     timestampStr: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
     hardwareInfo: {
-      microcontroller: 'ESP32 (Wi-Fi + HTTP Client)',
+      microcontroller: 'ESP32 Smart IoT Controller',
       pins: { ldr: 34, current: 36, led1: 18, led2: 19, oledSda: 21, oledScl: 22 },
-      sensors: ['LDR Photoresistor (GPIO 34 ADC)', 'Current Sensor ACS712 (GPIO 36 ADC)'],
-      actuators: ['Streetlight Pole 1 (GPIO 18)', 'Streetlight Pole 2 (GPIO 19)', 'OLED Display 128x64 (I2C 0x3C)']
+      sensors: ['Ambient Light Sensor', 'Load Current Sensor'],
+      actuators: ['Luminaire Pole 1', 'Luminaire Pole 2', 'Digital Display']
     }
   };
 
@@ -84,7 +82,7 @@ export function IoTNotificationModal({
   const isNormal = !isFault && !isWastage;
   const isOnline = activeDevice && (Date.now() - activeDevice.lastUpdated < 60000 || rawStatus !== undefined);
 
-  // Condition explanations for judges
+  // High-level condition label for judges & operators
   const conditionLabel = isWastage 
     ? 'DAY + LIGHT ON' 
     : isFault 
@@ -102,7 +100,7 @@ export function IoTNotificationModal({
     resolveAlert(deviceId);
     setIsDispatched(prev => ({ ...prev, [deviceId]: false }));
     toast.success('✅ Marked as Resolved', {
-      description: `Device ${deviceId} telemetry restored to NORMAL state.`
+      description: `Device ${deviceId} status synchronized to NORMAL.`
     });
   };
 
@@ -180,7 +178,7 @@ export function IoTNotificationModal({
                     <span>•</span>
                     <span className="flex items-center gap-1">
                       <MapPin className="w-3 h-3 text-red-500 shrink-0" />
-                      <strong style={{ color: '#0f172a' }}>{activeDevice.location.area}</strong>
+                      <strong style={{ color: '#0f172a' }}>Food and Multi Activity Center, VNIT Nagpur</strong>
                     </span>
                   </div>
                 </div>
@@ -230,16 +228,16 @@ export function IoTNotificationModal({
               </button>
 
               <button
-                onClick={() => setActiveTab('circuit')}
+                onClick={() => setActiveTab('system')}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
                 style={
-                  activeTab === 'circuit'
+                  activeTab === 'system'
                     ? { backgroundColor: '#0f172a', color: '#ffffff', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }
                     : { backgroundColor: '#f1f5f9', color: '#475569', border: '1px solid #e2e8f0' }
                 }
               >
-                <Layers className="w-3.5 h-3.5" />
-                <span>Circuit & Pinout</span>
+                <Building2 className="w-3.5 h-3.5" />
+                <span>System Architecture</span>
               </button>
             </div>
           </div>
@@ -282,9 +280,9 @@ export function IoTNotificationModal({
                             Streetlight operation is functioning as expected.
                           </p>
                           <div className="text-xs mt-2 flex flex-wrap gap-x-4 gap-y-1 font-semibold" style={{ color: '#15803d' }}>
-                            <span>Condition: <strong style={{ color: '#14532d' }}>{activeDevice.environment} (LDR: {activeDevice.ldrValue})</strong></span>
+                            <span>Condition: <strong style={{ color: '#14532d' }}>{activeDevice.environment}</strong></span>
                             <span>•</span>
-                            <span>Streetlight LEDs: <strong style={{ color: '#14532d' }}>{activeDevice.pole1Light}</strong></span>
+                            <span>Luminaires: <strong style={{ color: '#14532d' }}>{activeDevice.pole1Light}</strong></span>
                             <span>•</span>
                             <span>Current: <strong style={{ color: '#14532d' }}>{(activeDevice.currentReading || 0).toFixed(3)} A</strong></span>
                           </div>
@@ -321,7 +319,7 @@ export function IoTNotificationModal({
                           </div>
 
                           <div className="mt-1 text-xs font-bold" style={{ color: '#92400e' }}>
-                            Detected Condition: <span className="font-mono underline">{conditionLabel}</span>
+                            Detected Condition: <span className="underline">{conditionLabel}</span>
                           </div>
 
                           <p className="text-xs sm:text-sm font-medium mt-1 leading-relaxed" style={{ color: '#92400e' }}>
@@ -386,7 +384,7 @@ export function IoTNotificationModal({
                           </div>
 
                           <div className="mt-1 text-xs font-bold" style={{ color: '#991b1b' }}>
-                            Detected Condition: <span className="font-mono underline">{conditionLabel}</span>
+                            Detected Condition: <span className="underline">{conditionLabel}</span>
                           </div>
 
                           <p className="text-xs sm:text-sm font-medium mt-1 leading-relaxed" style={{ color: '#991b1b' }}>
@@ -425,7 +423,7 @@ export function IoTNotificationModal({
                 )}
 
                 {/* -------------------------------------------------------------- */}
-                {/* B. LIVE HARDWARE TELEMETRY SECTION (4 Clean Cards)             */}
+                {/* B. LIVE HARDWARE TELEMETRY SECTION (Clean Telemetry Cards)      */}
                 {/* -------------------------------------------------------------- */}
                 <div>
                   <div className="flex items-center justify-between mb-2.5">
@@ -434,22 +432,22 @@ export function IoTNotificationModal({
                       LIVE HARDWARE TELEMETRY
                     </h3>
                     <span className="text-[11px] font-medium" style={{ color: '#64748b' }}>
-                      Auto-refreshed every 2s
+                      Live auto-sync
                     </span>
                   </div>
 
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3">
-                    {/* Card 1: LDR Sensor */}
+                    {/* Card 1: Ambient Light Sensor */}
                     <div 
                       className="p-3 sm:p-3.5 rounded-xl border flex flex-col justify-between"
                       style={{ backgroundColor: '#ffffff', borderColor: '#e2e8f0' }}
                     >
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] font-bold tracking-wider" style={{ color: '#64748b' }}>
-                          LDR SENSOR
+                          LIGHT SENSOR
                         </span>
-                        <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded" style={{ backgroundColor: '#f1f5f9', color: '#475569' }}>
-                          GPIO 34
+                        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded" style={{ backgroundColor: '#f1f5f9', color: '#475569' }}>
+                          Ambient
                         </span>
                       </div>
 
@@ -471,11 +469,11 @@ export function IoTNotificationModal({
                       </div>
 
                       <div className="text-[10px] font-medium" style={{ color: '#94a3b8' }}>
-                        Threshold: &lt; 300 (Night)
+                        {activeDevice.environment === 'NIGHT' ? 'Nighttime Darkness' : 'Natural Daylight'}
                       </div>
                     </div>
 
-                    {/* Card 2: Current Sensor */}
+                    {/* Card 2: Power Load Current */}
                     <div 
                       className="p-3 sm:p-3.5 rounded-xl border flex flex-col justify-between"
                       style={{ backgroundColor: '#ffffff', borderColor: '#e2e8f0' }}
@@ -484,8 +482,8 @@ export function IoTNotificationModal({
                         <span className="text-[11px] font-bold tracking-wider" style={{ color: '#64748b' }}>
                           CURRENT SENSOR
                         </span>
-                        <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded" style={{ backgroundColor: '#f1f5f9', color: '#475569' }}>
-                          GPIO 36
+                        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded" style={{ backgroundColor: '#f1f5f9', color: '#475569' }}>
+                          Load Current
                         </span>
                       </div>
 
@@ -495,13 +493,13 @@ export function IoTNotificationModal({
                         </div>
                         <div className="flex items-center gap-1.5 mt-1">
                           <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-md" style={{ backgroundColor: '#eff6ff', color: '#1e40af' }}>
-                            <Zap className="w-3.5 h-3.5 text-blue-600" /> ACS712 Sensor
+                            <Zap className="w-3.5 h-3.5 text-blue-600" /> Current Draw
                           </span>
                         </div>
                       </div>
 
                       <div className="text-[10px] font-medium" style={{ color: '#94a3b8' }}>
-                        Nominal threshold: 0.020 A
+                        Load threshold: 0.020 A
                       </div>
                     </div>
 
@@ -514,14 +512,14 @@ export function IoTNotificationModal({
                         <span className="text-[11px] font-bold tracking-wider" style={{ color: '#64748b' }}>
                           STREETLIGHT POLES
                         </span>
-                        <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded" style={{ backgroundColor: '#f1f5f9', color: '#475569' }}>
-                          2 LEDs
+                        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded" style={{ backgroundColor: '#f1f5f9', color: '#475569' }}>
+                          Poles 1 & 2
                         </span>
                       </div>
 
                       <div className="my-1.5 space-y-1.5">
                         <div className="flex items-center justify-between text-xs">
-                          <span className="font-semibold" style={{ color: '#475569' }}>Pole 1 (GPIO 18):</span>
+                          <span className="font-semibold" style={{ color: '#475569' }}>Pole 1:</span>
                           <span 
                             className="font-bold px-2 py-0.5 rounded text-[11px] flex items-center gap-1"
                             style={
@@ -536,7 +534,7 @@ export function IoTNotificationModal({
                         </div>
 
                         <div className="flex items-center justify-between text-xs">
-                          <span className="font-semibold" style={{ color: '#475569' }}>Pole 2 (GPIO 19):</span>
+                          <span className="font-semibold" style={{ color: '#475569' }}>Pole 2:</span>
                           <span 
                             className="font-bold px-2 py-0.5 rounded text-[11px] flex items-center gap-1"
                             style={
@@ -552,7 +550,7 @@ export function IoTNotificationModal({
                       </div>
 
                       <div className="text-[10px] font-medium" style={{ color: '#94a3b8' }}>
-                        Dual Luminaire Relay
+                        Dual Luminaire Array
                       </div>
                     </div>
 
@@ -565,7 +563,7 @@ export function IoTNotificationModal({
                         <span className="text-[11px] font-bold tracking-wider" style={{ color: '#64748b' }}>
                           DEVICE
                         </span>
-                        <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded" style={{ backgroundColor: '#f1f5f9', color: '#475569' }}>
+                        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded" style={{ backgroundColor: '#f1f5f9', color: '#475569' }}>
                           ESP32
                         </span>
                       </div>
@@ -576,7 +574,7 @@ export function IoTNotificationModal({
                         </div>
                         <div className="flex items-center gap-1 text-xs font-semibold mt-1" style={{ color: isOnline ? '#15803d' : '#b91c1c' }}>
                           <Radio className="w-3.5 h-3.5" />
-                          <span>{isOnline ? 'ONLINE (Wi-Fi)' : 'OFFLINE'}</span>
+                          <span>{isOnline ? 'ONLINE (Connected)' : 'OFFLINE'}</span>
                         </div>
                       </div>
 
@@ -654,7 +652,7 @@ export function IoTNotificationModal({
                   </div>
 
                   <p className="text-xs mb-3 font-medium" style={{ color: '#64748b' }}>
-                    Simulate hardware fault conditions to evaluate emergency dispatch workflows and dashboard alert triggers:
+                    Simulate condition states to demonstrate automated fault detection and maintenance dispatch workflows:
                   </p>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -711,10 +709,10 @@ export function IoTNotificationModal({
                   style={{ backgroundColor: '#020617', borderColor: '#1e293b', color: '#38bdf8' }}
                 >
                   <div className="flex items-center justify-between text-[11px] pb-2 mb-3 border-b" style={{ borderColor: '#0369a1' }}>
-                    <span className="text-cyan-400 font-bold">SSD1306 OLED (128x64 • I2C 0x3C)</span>
+                    <span className="text-cyan-400 font-bold">DIGITAL STATUS DISPLAY</span>
                     <span className="text-emerald-400 font-bold flex items-center gap-1">
                       <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                      HARDWARE DISPLAY MIRROR
+                      LIVE DISPLAY MIRROR
                     </span>
                   </div>
 
@@ -724,22 +722,22 @@ export function IoTNotificationModal({
 
                   <div className="space-y-2 text-xs sm:text-sm">
                     <div className="flex justify-between">
-                      <span style={{ color: '#94a3b8' }}>LDR SENSOR:</span>
+                      <span style={{ color: '#94a3b8' }}>LIGHT LEVEL:</span>
                       <strong className="text-white">{activeDevice.ldrValue}</strong>
                     </div>
 
                     <div className="flex justify-between">
-                      <span style={{ color: '#94a3b8' }}>ENVIRONMENT:</span>
+                      <span style={{ color: '#94a3b8' }}>TIME OF DAY:</span>
                       <strong className="text-white">{activeDevice.environment}</strong>
                     </div>
 
                     <div className="flex justify-between">
-                      <span style={{ color: '#94a3b8' }}>POLE 1 / POLE 2:</span>
+                      <span style={{ color: '#94a3b8' }}>LUMINAIRE 1 & 2:</span>
                       <strong className="text-emerald-400">P1: {activeDevice.pole1Light} | P2: {activeDevice.pole2Light}</strong>
                     </div>
 
                     <div className="flex justify-between">
-                      <span style={{ color: '#94a3b8' }}>CURRENT DRAW:</span>
+                      <span style={{ color: '#94a3b8' }}>CURRENT LOAD:</span>
                       <strong className="text-white">{(activeDevice.currentReading || 0).toFixed(3)} A</strong>
                     </div>
 
@@ -751,91 +749,71 @@ export function IoTNotificationModal({
                     </div>
 
                     <div className="text-[11px] text-slate-400 pt-1 flex justify-between">
-                      <span>DEV: {activeDevice.deviceId}</span>
-                      <span>LOC: VNIT NAGPUR</span>
+                      <span>DEVICE: {activeDevice.deviceId}</span>
+                      <span>LOCATION: VNIT NAGPUR</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="p-3 rounded-xl border text-xs" style={{ backgroundColor: '#ffffff', borderColor: '#e2e8f0', color: '#475569' }}>
+                <div className="p-3.5 rounded-xl border text-xs" style={{ backgroundColor: '#ffffff', borderColor: '#e2e8f0', color: '#475569' }}>
                   <p className="leading-relaxed">
-                    This screen displays a real-time pixel-matched mirror of the <strong>0.96 inch SSD1306 I2C OLED display</strong> mounted on the ESP32 physical breadboard circuit.
+                    Live digital mirror reflecting the physical luminaire cluster display mounted on Pole <strong>NG-001</strong> at <strong>Food and Multi Activity Center, VNIT Nagpur</strong>.
                   </p>
                 </div>
               </div>
             )}
 
             {/* ================================================================== */}
-            {/* TAB 3: CIRCUIT & PINOUT SPECIFICATIONS                              */}
+            {/* TAB 3: SYSTEM ARCHITECTURE SPECIFICATIONS                           */}
             {/* ================================================================== */}
-            {activeTab === 'circuit' && (
+            {activeTab === 'system' && (
               <div className="space-y-4">
                 <div 
                   className="p-4 sm:p-5 rounded-xl border"
                   style={{ backgroundColor: '#ffffff', borderColor: '#e2e8f0' }}
                 >
                   <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-wider mb-3" style={{ color: '#0f172a' }}>
-                    ESP32 PIN CONFIGURATION & HARDWARE MAPPING
+                    SMART CITY INFRASTRUCTURE SPECIFICATIONS
                   </h4>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                     <div className="p-3 rounded-lg border" style={{ backgroundColor: '#f8fafc', borderColor: '#e2e8f0' }}>
                       <div className="font-bold flex items-center justify-between" style={{ color: '#0f172a' }}>
-                        <span>LDR Light Sensor</span>
-                        <span className="font-mono px-1.5 py-0.5 rounded bg-blue-100 text-blue-800">GPIO 34 (ADC1_CH6)</span>
+                        <span>IoT Telemetry Protocol</span>
+                        <span className="px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 font-medium">Wi-Fi HTTP REST</span>
                       </div>
                       <p className="text-[11px] mt-1" style={{ color: '#64748b' }}>
-                        Measures ambient light level. Threshold &lt; 300 defines NIGHT, &gt;= 300 defines DAY.
+                        Encrypted JSON telemetry streaming every 3 seconds to Nagpur Municipal Cloud servers.
                       </p>
                     </div>
 
                     <div className="p-3 rounded-lg border" style={{ backgroundColor: '#f8fafc', borderColor: '#e2e8f0' }}>
                       <div className="font-bold flex items-center justify-between" style={{ color: '#0f172a' }}>
-                        <span>ACS712 Current Sensor</span>
-                        <span className="font-mono px-1.5 py-0.5 rounded bg-blue-100 text-blue-800">GPIO 36 (ADC1_CH0)</span>
+                        <span>Municipal Administrative Zone</span>
+                        <span className="px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 font-medium">Zone 2 - Dharampeth</span>
                       </div>
                       <p className="text-[11px] mt-1" style={{ color: '#64748b' }}>
-                        Detects luminaire electrical load current. Threshold 0.020 A identifies active lamp draw.
+                        Ward 15 electrical feeder line covering VNIT campus public lighting grid.
                       </p>
                     </div>
 
                     <div className="p-3 rounded-lg border" style={{ backgroundColor: '#f8fafc', borderColor: '#e2e8f0' }}>
                       <div className="font-bold flex items-center justify-between" style={{ color: '#0f172a' }}>
-                        <span>Streetlight Pole 1 LED</span>
-                        <span className="font-mono px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">GPIO 18 (OUTPUT)</span>
+                        <span>Automated Fault Detection</span>
+                        <span className="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-medium">Real-Time</span>
                       </div>
                       <p className="text-[11px] mt-1" style={{ color: '#64748b' }}>
-                        Digital high/low driving Luminaire 1 through current-limiting resistor.
+                        Identifies unlit lamps during night conditions and alerts central dispatch immediately.
                       </p>
                     </div>
 
                     <div className="p-3 rounded-lg border" style={{ backgroundColor: '#f8fafc', borderColor: '#e2e8f0' }}>
                       <div className="font-bold flex items-center justify-between" style={{ color: '#0f172a' }}>
-                        <span>Streetlight Pole 2 LED</span>
-                        <span className="font-mono px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">GPIO 19 (OUTPUT)</span>
+                        <span>Daytime Energy Conservation</span>
+                        <span className="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-medium">Active</span>
                       </div>
                       <p className="text-[11px] mt-1" style={{ color: '#64748b' }}>
-                        Digital high/low driving Luminaire 2 on the secondary street pole.
-                      </p>
-                    </div>
-
-                    <div className="p-3 rounded-lg border" style={{ backgroundColor: '#f8fafc', borderColor: '#e2e8f0' }}>
-                      <div className="font-bold flex items-center justify-between" style={{ color: '#0f172a' }}>
-                        <span>I2C OLED Data (SDA)</span>
-                        <span className="font-mono px-1.5 py-0.5 rounded bg-purple-100 text-purple-800">GPIO 21 (I2C SDA)</span>
-                      </div>
-                      <p className="text-[11px] mt-1" style={{ color: '#64748b' }}>
-                        Serial data line connected to SSD1306 OLED screen address 0x3C.
-                      </p>
-                    </div>
-
-                    <div className="p-3 rounded-lg border" style={{ backgroundColor: '#f8fafc', borderColor: '#e2e8f0' }}>
-                      <div className="font-bold flex items-center justify-between" style={{ color: '#0f172a' }}>
-                        <span>I2C OLED Clock (SCL)</span>
-                        <span className="font-mono px-1.5 py-0.5 rounded bg-purple-100 text-purple-800">GPIO 22 (I2C SCL)</span>
-                      </div>
-                      <p className="text-[11px] mt-1" style={{ color: '#64748b' }}>
-                        Serial clock bus coordinating 400kHz I2C display transmission.
+                        Flags power leakage and daytime luminaire activation to prevent municipal energy wastage.
                       </p>
                     </div>
                   </div>
