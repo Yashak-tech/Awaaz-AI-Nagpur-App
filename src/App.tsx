@@ -465,12 +465,12 @@ export default function App() {
         id: '11',
         title: 'Water pipeline leakage near Medical Square GMCH',
         description: 'Underground main distribution line leaking potable water onto roadway, reducing residential colony supply pressure.',
-        imageUrl: '/images/hanuman-nagar-pipeline.jpg',
+        imageUrl: '/images/hanuman-nagar-pipeline.png',
         media: [
           {
             id: '11-1',
             type: 'image',
-            url: '/images/hanuman-nagar-pipeline.jpg'
+            url: '/images/hanuman-nagar-pipeline.png'
           }
         ],
         district: 'Nagpur',
@@ -500,12 +500,12 @@ export default function App() {
         id: '12',
         title: 'Hazardous open stormwater drain near Nandanvan',
         description: 'Concrete slab missing on deep roadside storm drain along Great Nag Road, posing fatal hazard to two-wheelers and pedestrians.',
-        imageUrl: '/images/nehru-nagar-drain.jpg',
+        imageUrl: '/images/nehru-nagar-drain.png',
         media: [
           {
             id: '12-1',
             type: 'image',
-            url: '/images/nehru-nagar-drain.jpg'
+            url: '/images/nehru-nagar-drain.png'
           }
         ],
         district: 'Nagpur',
@@ -533,12 +533,12 @@ export default function App() {
         id: '13',
         title: 'Vegetable market waste dumped near Kalamna yard',
         description: 'Organic waste and debris left uncleaned on access road blocking trucks and generating foul odor near residential belt.',
-        imageUrl: '/images/lakadganj-market-waste.png',
+        imageUrl: '/images/lakadganj-market-waste.jpg',
         media: [
           {
             id: '13-1',
             type: 'image',
-            url: '/images/lakadganj-market-waste.png'
+            url: '/images/lakadganj-market-waste.jpg'
           }
         ],
         district: 'Nagpur',
@@ -566,12 +566,12 @@ export default function App() {
         id: '14',
         title: 'Continuous dark corridor from Indora to Bezonbagh',
         description: 'Series of non-functional streetlight fixtures leaving busy commercial and transit avenue without lighting after 7 PM.',
-        imageUrl: '/images/ashi-nagar-street.png',
+        imageUrl: '/images/ashi-nagar-street.jpg',
         media: [
           {
             id: '14-1',
             type: 'image',
-            url: '/images/ashi-nagar-street.png'
+            url: '/images/ashi-nagar-street.jpg'
           }
         ],
         district: 'Nagpur',
